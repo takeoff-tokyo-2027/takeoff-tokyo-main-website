@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { TakeoffButton, TakeoffInput } from '@takeoff-tokyo/ui';
 import { api, Catalog, fromMinor, Profile, Ticket, toMinor } from './client';
+import { NumberInput } from '../components/NumberInput';
 
 export function AttendeeForm({ ticket, catalog, onSaved, onCancel }: { ticket: Ticket; catalog: Catalog; onSaved: () => void; onCancel: () => void }) {
   const saved = ticket.startup || ticket.investor || {};
@@ -38,13 +39,13 @@ export function AttendeeForm({ ticket, catalog, onSaved, onCancel }: { ticket: T
     {ticket.type === 'startup' && <details className="optional-fields"><summary>Startup questionnaire <span>Optional</span></summary><fieldset><legend className="visually-hidden">Startup questionnaire</legend>
       {input('What does your business do?', 'business_description')}
       {currencySelect}
-      <label>Funding sought<TakeoffInput name="funding_amount" inputMode="decimal" defaultValue={fromMinor(saved.funding_amount, String(saved.funding_currency || 'JPY'))} /></label>
+      <NumberInput label="Funding sought" name="funding_amount" min={0} step={currency === 'JPY' ? 1 : 0.01} defaultValue={fromMinor(saved.funding_amount, String(saved.funding_currency || 'JPY'))} disabled={busy} />
       <label>Funding stage<select name="funding_stage" defaultValue={String(saved.funding_stage || '')}><option value="">Prefer not to answer</option>{[['pre_seed','Pre-seed'],['seed','Seed'],['series_a','Series A'],['series_b','Series B'],['series_c_plus','Series C+'],['other','Other']].map(([v,l]) => <option value={v} key={v}>{l}</option>)}</select></label>
       {input('What types of VCs would you like to meet?', 'target_vc_types')}
     </fieldset></details>}
     {ticket.type === 'investor' && <details className="optional-fields"><summary>Investor questionnaire <span>Optional</span></summary><fieldset><legend className="visually-hidden">Investor questionnaire</legend>
       {currencySelect}
-      {['investment_min','investment_max'].map((name, index) => <label key={name}>Typical investment — {index ? 'maximum' : 'minimum'}<TakeoffInput name={name} inputMode="decimal" defaultValue={fromMinor(saved[name], String(saved.investment_currency || 'JPY'))} /></label>)}
+      {['investment_min','investment_max'].map((name, index) => <NumberInput key={name} label={`Typical investment — ${index ? 'maximum' : 'minimum'}`} name={name} min={0} step={currency === 'JPY' ? 1 : 0.01} defaultValue={fromMinor(saved[name], String(saved.investment_currency || 'JPY'))} disabled={busy} />)}
       <fieldset><legend>Priority sectors</legend>{catalog.sectors.map(s => <label className="ticket-checkbox" key={s.code}><input type="checkbox" name="sectors" value={s.code} defaultChecked={Array.isArray(saved.sectors) && saved.sectors.includes(s.code)} />{s.label}</label>)}</fieldset>
       {input('Other sector', 'other_sector')}
       {[['leads_deals','Open to leading a deal?'],['invests_internationally','Invest in non-Japanese startups?'],['seeking_lps','Looking for LPs?']].map(([key,label]) => <label key={key}>{label}<select name={key} defaultValue={saved[key] === true ? 'yes' : saved[key] === false ? 'no' : ''}><option value="">Prefer not to answer</option><option value="yes">Yes</option><option value="no">No</option></select></label>)}

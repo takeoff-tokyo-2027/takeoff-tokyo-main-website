@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { AccessibleModal } from './AccessibleModal';
 import type { AdminTicketType } from './TicketCatalogManager';
 import { api, money } from './client';
+import { NumberInput } from '../components/NumberInput';
 interface Discount { id:string; code:string; percentage:number; tickets:string[]; active:boolean; usage_count:number; deleted_at:string|null }
 interface Use { order_id:string; email:string; buyer_name:string; paid_at:string; discount_percentage:number; discount_amount:number; currency:string; status:string }
 export function DiscountManager() {
@@ -13,23 +14,23 @@ export function DiscountManager() {
  const [types,setTypes]=useState<AdminTicketType[]>([]);
  const [discounts,setDiscounts]=useState<Discount[]>([]);
  const [editing,setEditing]=useState<Discount|null>(null);
- const [code,setCode]=useState(''); const [percentage,setPercentage]=useState(10);
+ const [code,setCode]=useState(''); const [percentage,setPercentage]=useState('10');
  const [tickets,setTickets]=useState<string[]>([]); const [active,setActive]=useState(true);
  const [busy,setBusy]=useState(false); const [error,setError]=useState('');
  const [uses,setUses]=useState<{id:string;code:string;rows:Use[];offset:number}|null>(null);
  async function load(){const result=await api<{discounts:Discount[]}>('/admin/discounts');setDiscounts(result.discounts);}
  useEffect(()=>{void Promise.all([load(),api<{ticketTypes:AdminTicketType[]}>('/admin/ticket-types').then(r=>setTypes(r.ticketTypes.filter(t=>t.code!=='crew')))]).catch(e=>setError(e.message));},[]);
  async function run(fn:()=>Promise<void>){setBusy(true);setError('');try{await fn();}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
- function edit(d:Discount|null){setFormOpen(true);setEditing(d);setCode(d?.code||'');setPercentage(d?.percentage||10);setTickets(d?.tickets||[]);setActive(d?.active??true);}
+ function edit(d:Discount|null){setFormOpen(true);setEditing(d);setCode(d?.code||'');setPercentage(String(d?.percentage||10));setTickets(d?.tickets||[]);setActive(d?.active??true);}
  async function showUses(d:{id:string;code:string},offset=0){const result=await api<{uses:Use[]}>(`/admin/discounts/${d.id}/uses?offset=${offset}`);setUses({...d,rows:result.uses,offset});}
  useEffect(()=>{const selected=discounts.find(d=>d.id===selectedId);if(selected)void showUses(selected).catch(e=>setError(e.message));},[selectedId,discounts]);
  return <section className="ticket-form"><div className="page-heading"><h1>Discount codes</h1>
   {selectedId?<Link to="/admin/discounts">← Back to discounts</Link>:<TakeoffButton variant="cyan" onClick={()=>edit(null)}>Create discount</TakeoffButton>}</div>
-  <AccessibleModal isOpen={formOpen} onClose={()=>setFormOpen(false)} title={editing?"Edit discount":"Create discount"}><form className="ticket-form" onSubmit={e=>{e.preventDefault();void run(async()=>{await api(`/admin/discounts${editing?`/${editing.id}`:''}`,editing?'PATCH':'POST',{code,percentage,tickets,active});edit(null);setFormOpen(false);await load();});}}>
+  <AccessibleModal isOpen={formOpen} onClose={()=>setFormOpen(false)} title={editing?"Edit discount":"Create discount"}><form className="ticket-form" onSubmit={e=>{e.preventDefault();void run(async()=>{await api(`/admin/discounts${editing?`/${editing.id}`:''}`,editing?'PATCH':'POST',{code,percentage:Number(percentage),tickets,active});edit(null);setFormOpen(false);await load();});}}>
    <label>Discount code<TakeoffInput value={code} onChange={e=>setCode(e.target.value.toUpperCase())} maxLength={40} required pattern="[A-Za-z0-9][A-Za-z0-9_-]{0,39}" /></label>
    <fieldset className="checkbox-options"><legend>Ticket types</legend>{types.filter(t=>!t.deleted_at||editing?.tickets.includes(t.code)).map(t=><label className="ticket-checkbox" key={t.code}><input type="checkbox" disabled={!!t.deleted_at&&!tickets.includes(t.code)} checked={tickets.includes(t.code)} onChange={e=>setTickets(e.target.checked?[...tickets,t.code]:tickets.filter(v=>v!==t.code))}/>{t.label}{t.deleted_at&&' (deleted — replace)'}</label>)}</fieldset>
-   <label>Percentage discount<TakeoffInput type="number" value={percentage} onChange={e=>setPercentage(Number(e.target.value))} min="0.01" max="100" step="0.01" required /></label>
-   <div className="ticket-actions">{[10,20,30,50].map(p=><TakeoffButton key={p} type="button" variant={p===percentage?'cyan':'secondary'} size="sm" onClick={()=>setPercentage(p)}>{p}%</TakeoffButton>)}</div>
+   <NumberInput label="Percentage discount" value={percentage} onValueChange={setPercentage} min={0.01} max={100} step={0.01} required disabled={busy} />
+   <div className="ticket-actions">{[10,20,30,50].map(p=><TakeoffButton key={p} type="button" variant={p===Number(percentage)?'cyan':'secondary'} size="sm" onClick={()=>setPercentage(String(p))}>{p}%</TakeoffButton>)}</div>
    <label className="ticket-checkbox"><input type="checkbox" checked={active} onChange={e=>setActive(e.target.checked)}/>Active</label>
    <div className="ticket-actions form-actions"><TakeoffButton type="submit" variant="cyan" disabled={busy||!tickets.length}>{editing?'Save discount':'Create discount'}</TakeoffButton>{editing&&<TakeoffButton type="button" variant="ghost" onClick={()=>setFormOpen(false)}>Cancel edit</TakeoffButton>}</div>
   </form>{error&&<p role="alert" className="ticket-error">{error}</p>}</AccessibleModal>

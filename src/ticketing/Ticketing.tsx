@@ -11,6 +11,7 @@ import { PanelShell } from './PanelShell';
 import { AccessibleModal } from './AccessibleModal';
 import { AdminPages } from './AdminPages';
 import { statusLabel } from './display';
+import { NumberInput } from '../components/NumberInput';
 
 type CheckoutRequest = { selection: string; key: string; orderId?: string };
 type CheckoutRecovery = CheckoutRequest & { reason: 'restart' | 'completed' };
@@ -223,7 +224,7 @@ export function Ticketing({purchaseOnly=false,onClose}: {purchaseOnly?:boolean;o
 
         {view === 'buy' && <form className="ticket-form checkout-form" onSubmit={checkout}>
           {!catalog ? <p>Loading ticket availability…</p> : !catalog.salesEnabled || (!catalog.types.length && !unavailable.length) ? <p>Ticket sales are not open yet.</p> : <>
-          {catalog.types.map(t => <label className="ticket-quantity" key={t.code}><span>{t.label}<small>{money(t.amount, t.currency)} per ticket</small></span><TakeoffInput type="number" min={0} max={100} step={1} value={qty[t.code] || 0} onChange={e => setQty({ ...qty, [t.code]: Number(e.target.value) })} aria-label={`${t.label} quantity`} /></label>)}
+          {catalog.types.map(t => <div className={`ticket-quantity${qty[t.code] > 0 ? ' ticket-quantity--picked' : ''}`} key={t.code}><span>{t.label}<small>{money(t.amount, t.currency)} per ticket</small></span><NumberInput compact label={`${t.label} quantity`} min={0} max={100} step={1} value={qty[t.code] || 0} disabled={busy} onValueChange={value => setQty(current => ({ ...current, [t.code]: Number(value) }))} /></div>)}
           {!!unavailable.length&&<section className="checkout-unavailable"><h3>Unavailable tickets</h3>{unavailable.map(([code,count])=><div className="page-heading" key={code}><span>{statusLabel(code)} × {count}</span><TakeoffButton type="button" variant="ghost" disabled={busy} aria-label={`Remove ${statusLabel(code)}`} onClick={()=>removeUnavailable(code)}>Remove</TakeoffButton></div>)}</section>}
           <label>Buyer’s full name<TakeoffInput name="name" value={buyerName} onChange={e => setBuyerName(e.target.value)} maxLength={200} required autoComplete="name" /></label>
           <label>Buyer’s email<TakeoffInput type="email" name="email" value={buyerEmail} onChange={e => setBuyerEmail(e.target.value)} maxLength={254} required autoComplete="email" /></label>
