@@ -1,4 +1,4 @@
-# Copy to .dev.vars for wrangler pages dev. Set real deployments as Cloudflare secrets.
+# Copy to .dev.vars for manual wrangler dev. Set real deployments as Cloudflare secrets.
 SITE_URL=http://localhost:8788
 SUPABASE_URL=https://YOUR_PROJECT.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=

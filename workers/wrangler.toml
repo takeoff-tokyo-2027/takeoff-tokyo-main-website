@@ -16,7 +16,7 @@ name = "takeoff-tokyo-ticket-emails-staging"
 [env.staging.vars]
 APP_ENV = "staging"
 SUPABASE_DB_SCHEMA = "staging"
-SITE_URL = "https://dev.takeoff-tokyo-main-website.pages.dev"
+# Set SITE_URL as a staging secret to the website's stable dev Preview URL.
 
 [env.staging.triggers]
 crons = ["* * * * *"]
