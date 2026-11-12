@@ -1,15 +1,20 @@
 name = "takeoff-tokyo-main-website"
-pages_build_output_dir = "./dist"
+main = "workers/site.js"
 compatibility_date = "2026-11-01"
 compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+run_worker_first = ["/api", "/api/*"]
 
 [vars]
 APP_ENV = "production"
 SUPABASE_DB_SCHEMA = "public"
 
-# Cloudflare Pages production branch: main. Enable preview builds only for dev.
-[env.preview.vars]
+# Workers Builds: main deploys production; only dev creates a Worker Preview.
+# Set SITE_URL and credentials separately in Production and Previews Base secrets.
+[previews.vars]
 APP_ENV = "staging"
 SUPABASE_DB_SCHEMA = "staging"
-SITE_URL = "https://dev.takeoff-tokyo-main-website.pages.dev"
-PAGES_PROJECT_NAME = "takeoff-tokyo-main-website"

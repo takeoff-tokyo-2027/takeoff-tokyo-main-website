@@ -1,0 +1,4 @@
+# Never upload a legacy Pages server bundle as a public asset.
+_worker.js
+_worker.js/**
+_routes.json

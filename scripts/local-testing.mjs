@@ -46,11 +46,10 @@ try {
    run('supabase',['migration','up','--workdir',schema]);
    const folder=resolve(root,'.local-testing');mkdirSync(folder,{recursive:true});
    run('vite',['build','--mode','local-testing','--outDir','.local-testing/dist'],{env:{...clean(),...values}});
-   run('wrangler',['pages','functions','build','functions','--outdir','.local-testing/dist/_worker.js']);
    writeFileSync(resolve(folder,'.dev.vars'),Object.entries(values).filter(([k])=>!k.startsWith('VITE_')).map(([k,v])=>`${k}=${JSON.stringify(v)}`).join('\n'),{mode:0o600});
-   writeFileSync(resolve(folder,'wrangler.toml'),'name = "takeoff-tokyo-local-testing"\npages_build_output_dir = "./dist"\ncompatibility_date = "2026-11-01"\ncompatibility_flags = ["nodejs_compat"]\n');
+   writeFileSync(resolve(folder,'wrangler.toml'),'name = "takeoff-tokyo-local-testing"\nmain = "../workers/site.js"\ncompatibility_date = "2026-11-01"\ncompatibility_flags = ["nodejs_compat"]\n\n[assets]\ndirectory = "./dist"\nbinding = "ASSETS"\nnot_found_handling = "single-page-application"\nrun_worker_first = ["/api", "/api/*"]\n');
    console.log('Local website: http://127.0.0.1:8788 · Inbox: http://127.0.0.1:54324');
-   const children=[spawn(bin('wrangler'),['pages','dev','dist',...Object.entries(values).filter(([k,v])=>!k.startsWith('VITE_')&&v).flatMap(([k,v])=>['--binding',`${k}=${v}`]),'--ip','127.0.0.1','--port','8788','--log-level','warn'],{cwd:folder,env:{...clean(),CLOUDFLARE_INCLUDE_PROCESS_ENV:'false',CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV:'false'},stdio:'inherit'})];
+   const children=[spawn(bin('wrangler'),['dev','--local','--ip','127.0.0.1','--port','8788','--log-level','warn'],{cwd:folder,env:{...clean(),CLOUDFLARE_INCLUDE_PROCESS_ENV:'false',CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV:'false'},stdio:'inherit'})];
    if(action==='serve')children.push(spawn(process.execPath,[resolve(root,'scripts/local-testing.mjs'),'email'],{cwd:root,env:clean(),stdio:'inherit'}));
    const stop=()=>{for(const c of children)c.kill('SIGTERM');};for(const signal of ['SIGINT','SIGTERM','SIGHUP'])process.on(signal,stop);children[0].on('exit',stop);
   }else throw new Error('Unknown local action');
