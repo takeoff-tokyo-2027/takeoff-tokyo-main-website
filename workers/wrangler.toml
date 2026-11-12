@@ -1,0 +1,22 @@
+name = "takeoff-tokyo-ticket-emails"
+main = "email-outbox.js"
+compatibility_date = "2026-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+[triggers]
+crons = ["* * * * *"]
+
+[vars]
+APP_ENV = "production"
+SUPABASE_DB_SCHEMA = "public"
+
+[env.staging]
+name = "takeoff-tokyo-ticket-emails-staging"
+
+[env.staging.vars]
+APP_ENV = "staging"
+SUPABASE_DB_SCHEMA = "staging"
+SITE_URL = "https://dev.takeoff-tokyo-main-website.pages.dev"
+
+[env.staging.triggers]
+crons = ["* * * * *"]

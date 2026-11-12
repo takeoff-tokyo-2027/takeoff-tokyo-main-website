@@ -4,20 +4,48 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "node scripts/local-testing.mjs serve",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node test/core.test.js && node test/sign-in.test.js && node test/ticket-pricing.test.js && node test/email.test.js && node test/rpc.test.js && node test/database.test.js",
+    "dev:functions": "node scripts/local-testing.mjs serve",
+    "email:dev": "node scripts/local-testing.mjs email",
+    "check:functions": "wrangler pages functions build functions --outdir .wrangler/functions-build",
+    "email:check": "wrangler deploy --config workers/wrangler.toml --env \"\" --dry-run",
+    "test:browser": "playwright test",
+    "local:prepare": "node scripts/local-testing.mjs prepare",
+    "dev:local": "node scripts/local-testing.mjs serve",
+    "build:staging": "tsc && node scripts/build-staging.mjs",
+    "local:start": "node scripts/local-testing.mjs start",
+    "local:stop": "node scripts/local-testing.mjs stop",
+    "local:user": "node scripts/local-user.mjs",
+    "staging:prepare": "node scripts/prepare-staging.mjs",
+    "build:cloudflare": "node scripts/cloudflare-build.mjs",
+    "dev:frontend": "vite",
+    "email:check:staging": "wrangler deploy --config workers/wrangler.toml --env staging --dry-run",
+    "local:stripe": "node scripts/local-stripe.mjs",
+    "local:web": "node scripts/local-testing.mjs web",
+    "local:tmux": "node scripts/local-tmux.mjs"
   },
   "dependencies": {
+    "@supabase/supabase-js": "2.119.0",
     "@takeoff-tokyo/ui": "0.1.0",
+    "@zxing/browser": "^0.2.1",
+    "qrcode": "^1.5.4",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.18.5",
+    "stripe": "^23.1.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.0",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.4",
+    "supabase": "3.1.0",
     "typescript": "^5.7.2",
-    "vite": "^6.0.3"
+    "vite": "^6.0.3",
+    "wrangler": "^4.160.1"
   }
 }

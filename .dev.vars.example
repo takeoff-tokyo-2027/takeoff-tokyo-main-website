@@ -1,0 +1,11 @@
+# Copy to .dev.vars for wrangler pages dev. Set real deployments as Cloudflare secrets.
+SITE_URL=http://localhost:8788
+SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=
+# Catalog pricing requires Products/Prices read+write; checkout also needs Checkout/Coupons write and Charges read.
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+QR_SIGNING_SECRET=
+# Email Worker secrets (also set SITE_URL and both SUPABASE values on the Worker)
+BREVO_API_KEY=
+BREVO_SENDER_EMAIL=

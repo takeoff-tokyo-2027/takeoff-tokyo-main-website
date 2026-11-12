@@ -1,0 +1,15 @@
+name = "takeoff-tokyo-main-website"
+pages_build_output_dir = "./dist"
+compatibility_date = "2026-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+APP_ENV = "production"
+SUPABASE_DB_SCHEMA = "public"
+
+# Cloudflare Pages production branch: main. Enable preview builds only for dev.
+[env.preview.vars]
+APP_ENV = "staging"
+SUPABASE_DB_SCHEMA = "staging"
+SITE_URL = "https://dev.takeoff-tokyo-main-website.pages.dev"
+PAGES_PROJECT_NAME = "takeoff-tokyo-main-website"

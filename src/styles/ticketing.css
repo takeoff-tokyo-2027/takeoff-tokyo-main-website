@@ -1,0 +1,91 @@
+.ticket-hero-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; }
+.ticket-panel { width: min(100%, 720px); color: var(--takeoff-color-text-primary-white); text-align: left; }
+.ticket-panel p { color: var(--takeoff-color-text-secondary); line-height: 1.5; }
+.ticket-account, .ticket-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.ticket-account { justify-content: space-between; overflow-wrap: anywhere; }
+.ticket-form { display: grid; gap: 24px; min-width: 0; }
+.ticket-form label { display: grid; gap: 8px; font-size: .9375rem; min-width: 0; }
+.ticket-form input:not([type="checkbox"]), .ticket-form select { min-width: 0; width: 100%; min-height: 46px; }
+.ticket-form fieldset { display: grid; gap: 20px; min-width: 0; padding: 20px; border: 1px solid var(--takeoff-border-default); border-radius: var(--takeoff-radius-small); }
+.ticket-form legend { padding-inline: 8px; }
+.ticket-form select { padding: 12px; background: var(--takeoff-color-bg-input-field); color: var(--takeoff-color-text-primary-white); border: 1px solid var(--takeoff-border-default); border-radius: var(--takeoff-radius-small); font: inherit; }
+.ticket-form .ticket-checkbox { display: flex; align-items: center; gap: 12px; min-height: 44px; }
+.ticket-checkbox input { width: 18px; height: 18px; flex: none; accent-color: var(--takeoff-accent-cyan-base); }
+.ticket-form .ticket-quantity { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 16px; border: 1px solid var(--takeoff-border-default); border-radius: var(--takeoff-radius-medium); }
+.ticket-quantity > span { min-width: 0; overflow-wrap: anywhere; font-size: 1rem; }
+.ticket-quantity input { max-width: 88px; text-align: center; flex: none; font-variant-numeric: tabular-nums; }
+.ticket-quantity small { display: block; margin-top: 4px; font-size: .8125rem; color: var(--takeoff-color-text-dim); }
+.ticket-card { padding: 24px; margin-block: 20px; border: 1px solid var(--takeoff-border-default); border-radius: var(--takeoff-radius-medium); background: var(--takeoff-color-bg-surface-card); }
+.ticket-card h3 { margin-top: 0; }
+.ticket-card > .ticket-view { margin-top: 8px; align-self: start; }
+.ticket-card .ticket-holder { font-size: 1.125rem; }
+.ticket-card > .ticket-transfer-action { width: fit-content; justify-self: start; }
+.panel-shell .takeoff-card:hover { background: var(--takeoff-color-bg-surface-card); border-color: var(--takeoff-border-default); }
+.ticket-transfer { margin-top: 4px; }
+.ticket-panel .ticket-error, .ticket-modal .ticket-error { color: var(--takeoff-semantic-danger-text); }
+.ticket-error { overflow-wrap: anywhere; }
+.ticket-panel .ticket-success { color: var(--takeoff-semantic-success-text); }
+.ticket-notice { padding: 12px 16px; margin-top: 16px; border: 1px solid var(--takeoff-border-hover); border-radius: var(--takeoff-radius-small); }
+.ticket-qr { display: grid; gap: 16px; margin-block: 4px; }
+.ticket-qr img { display: block; width: min(100%, 320px); height: auto; border-radius: var(--takeoff-radius-small); }
+.ticket-qr code { display: block; overflow-wrap: anywhere; padding: 12px 0; font-size: .75rem; }
+.ticket-camera { width: 100%; max-height: 360px; background: var(--takeoff-color-bg-black); border-radius: var(--takeoff-radius-medium); }
+.ticket-order { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; width: 100%; padding: 20px 0; text-align: left; background: transparent; color: inherit; border: 0; border-bottom: 1px solid var(--takeoff-border-default); cursor: pointer; font: inherit; }
+.ticket-order:hover { color: var(--takeoff-accent-cyan-base); }
+.ticket-order strong { margin-left: auto; font-weight: 400; font-variant-numeric: tabular-nums; }
+.order-reference { color: var(--takeoff-color-text-dim); font-size: .8125rem; }
+.form-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.attendee-form, .scanner-form { max-width: 720px; }
+.optional-fields { border-block: 1px solid var(--takeoff-border-default); padding-block: 4px; }
+.optional-fields > summary { display: flex; justify-content: space-between; gap: 16px; padding-block: 16px; }
+.optional-fields > summary::after { content: '+'; margin-left: auto; color: var(--takeoff-accent-cyan-base); }
+.optional-fields[open] > summary::after { content: '−'; }
+.optional-fields > summary > span { color: var(--takeoff-color-text-dim); font-size: .8125rem; }
+.optional-fields > fieldset { border: 0; padding: 8px 0 20px; }
+summary { cursor: pointer; }
+summary::marker { color: var(--takeoff-color-text-dim); }
+.form-actions { justify-content: flex-end; padding-top: 8px; }
+.sign-in-form { max-width: 440px; }
+.sign-in-form form > .takeoff-button { width: 100%; }
+.sign-in-form .otp-input { font-size: 1.5rem; letter-spacing: .25em; text-align: center; font-variant-numeric: tabular-nums; }
+.panel-shell .takeoff-button, .ticket-modal .takeoff-button { min-height: 44px; white-space: normal; line-height: 1.25; }
+.ticket-modal { --dialog-pad: 24px; max-width: 600px; max-height: min(90svh, 900px); overflow: hidden; }
+.ticket-modal .takeoff-modal-dialog__header { padding: 16px var(--dialog-pad); flex: none; gap: 16px; }
+.ticket-modal .takeoff-modal-dialog__close-button { width: 44px; height: 44px; flex: none; }
+.ticket-modal .takeoff-modal-dialog__body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: var(--dialog-pad); }
+.ticket-modal .ticket-panel { width: 100%; }
+.checkout-form { gap: 20px; }
+.checkout-discount { border-top: 1px solid var(--takeoff-border-default); padding-top: 16px; }
+.checkout-discount > summary { font-size: .9375rem; min-height: 32px; }
+.checkout-discount > .ticket-form { padding-top: 16px; gap: 12px; }
+.checkout-footer { position: sticky; bottom: calc(-1 * var(--dialog-pad)); padding: 20px var(--dialog-pad); margin: 4px calc(-1 * var(--dialog-pad)) calc(-1 * var(--dialog-pad)); background: var(--takeoff-color-bg-surface-card); border-top: 1px solid var(--takeoff-border-default); display: grid; gap: 16px; z-index: 1; }
+.checkout-footer p { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+.checkout-footer strong { color: var(--takeoff-text); font-size: 1.5rem; font-weight: 400; font-variant-numeric: tabular-nums; }
+.checkout-footer > button { width: 100%; }
+.ticket-panel .discount-saving { color: var(--takeoff-accent-cyan-base); }
+.discount-usage { overflow-x: auto; }
+.discount-usage table { width: 100%; border-collapse: collapse; font-size: .875rem; }
+.discount-usage th, .discount-usage td { padding: 16px 12px; text-align: left; border-bottom: 1px solid var(--takeoff-border-default); }
+.discount-usage td { overflow-wrap: anywhere; }
+.discount-usage small { display: block; margin-top: 4px; color: var(--takeoff-color-text-dim); }
+@media (max-width: 480px) {
+  .ticket-card { padding: 20px; }
+  .form-columns { grid-template-columns: 1fr; }
+  .ticket-modal { --dialog-pad: 20px; max-height: 94svh; }
+  .ticket-modal .takeoff-modal-dialog__header { padding-block: 10px; }
+  .ticket-form fieldset { padding: 16px; }
+  .optional-fields > fieldset { padding-inline: 0; }
+  .form-actions > button { flex: 1; }
+  .ticket-order { gap: 8px 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .panel-shell *, .ticket-modal, .ticket-modal * { transition: none !important; scroll-behavior: auto !important; }
+}
+.sign-in-options { display: flex; flex-wrap: wrap; gap: 12px; margin-block: 20px 24px; }
+.sign-in-options a { display: inline-flex; align-items: center; min-height: 44px; padding: 10px 16px; border: 1px solid var(--takeoff-border-default); border-radius: var(--takeoff-radius-small); }
+.sign-in-options a.active, .sign-in-options a:hover { color: var(--takeoff-accent-cyan-base); background: var(--takeoff-accent-cyan-subtle); }
+.checkout-unavailable { display: grid; gap: 8px; padding: 16px; border: 1px solid var(--takeoff-semantic-warning-border); border-radius: var(--takeoff-radius-small); }
+.checkout-unavailable h3 { font-size: 1rem; }
+.checkout-unavailable .page-heading { flex-wrap: nowrap; gap: 8px; }
+.checkout-unavailable .page-heading > span { overflow-wrap: anywhere; min-width: 0; }
+.checkout-unavailable button { flex: none; }
