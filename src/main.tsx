@@ -7,6 +7,9 @@ import App from "./App";
 import { EnvironmentBanner } from "./ticketing/EnvironmentBanner";
 import { BrowserRouter } from "react-router-dom";
 import { TakeoffToastProvider } from "@takeoff-tokyo/ui";
+import { initializeAnalytics } from "./analytics";
+
+initializeAnalytics();
 
 const rootElement = document.getElementById("root");
 

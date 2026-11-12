@@ -2,6 +2,8 @@
 
 React/Vite frontend using `@takeoff-tokyo/ui`, a Cloudflare Worker with static assets, ticketing APIs and automatic Brevo email delivery, Supabase Postgres/Auth, and Stripe Checkout. Startup and Investor are public ticket types; Crew is issued only through admin APIs. Sales default to **disabled**.
 
+Google Analytics uses measurement ID `G-Y1MHMNDZHN` through `src/analytics.ts`, enabled for production builds on `takeoff-tokyo.com` and `www.takeoff-tokyo.com`. In the GA4 web stream, enable Enhanced measurement → Page views → Page changes based on browser history events to measure React navigation. The app uses Google's automatic pageviews; it does not send additional manual pageviews. See [Google's SPA measurement guide](https://developers.google.com/analytics/devguides/collection/ga4/single-page-applications).
+
 ## Local setup
 
 1. Install dependencies with `bun install --frozen-lockfile`.
