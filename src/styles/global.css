@@ -5,15 +5,22 @@
 }
 
 html {
+  --environment-banner-height: 0px;
   background: var(--takeoff-color-bg-black);
   color: var(--takeoff-color-text-primary-white);
   font-family: var(--takeoff-font-family-body);
+}
+
+html:has(.environment-banner) {
+  --environment-banner-height: calc(2.25rem + env(safe-area-inset-top, 0px));
+  scroll-padding-top: calc(var(--environment-banner-height) + 16px);
 }
 
 body {
   margin: 0;
   min-width: 280px;
   min-height: 100svh;
+  padding-block-start: var(--environment-banner-height);
 }
 
 .visually-hidden {
@@ -28,4 +35,25 @@ body {
   border: 0;
 }
 
-.environment-banner { padding: 8px 16px; background: var(--takeoff-semantic-warning-bg); color: var(--takeoff-semantic-warning-text); border-bottom: 1px solid var(--takeoff-semantic-warning-border); text-align: center; font-size: .875rem; }
+.environment-banner {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline: 0;
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+  block-size: var(--environment-banner-height);
+  padding-block-start: env(safe-area-inset-top, 0px);
+  padding-inline: 16px;
+  background: var(--takeoff-semantic-warning-text);
+  color: var(--takeoff-color-bg-black);
+  border-bottom: 1px solid var(--takeoff-semantic-warning-border);
+  font-size: .875rem;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.takeoff-modal-backdrop {
+  inset-block-start: var(--environment-banner-height);
+}
