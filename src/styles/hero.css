@@ -5,7 +5,7 @@
 
   display: grid;
   align-items: start;
-  min-height: 100svh;
+  min-height: calc(100svh - var(--environment-banner-height));
   padding-block: var(--hero-spacing);
   background: var(--takeoff-color-bg-black);
 }

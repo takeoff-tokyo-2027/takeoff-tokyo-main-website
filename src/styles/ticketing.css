@@ -49,7 +49,7 @@ summary::marker { color: var(--takeoff-color-text-dim); }
 .sign-in-form form > .takeoff-button { width: 100%; }
 .sign-in-form .otp-input { font-size: 1.5rem; letter-spacing: .25em; text-align: center; font-variant-numeric: tabular-nums; }
 .panel-shell .takeoff-button, .ticket-modal .takeoff-button { min-height: 44px; white-space: normal; line-height: 1.25; }
-.ticket-modal { --dialog-pad: 24px; max-width: 600px; max-height: min(90svh, 900px); overflow: hidden; }
+.ticket-modal { --dialog-pad: 24px; max-width: 600px; max-height: min(90svh, 900px, calc(100svh - var(--environment-banner-height) - 2rem)); overflow: hidden; }
 .ticket-modal .takeoff-modal-dialog__header { padding: 16px var(--dialog-pad); flex: none; gap: 16px; }
 .ticket-modal .takeoff-modal-dialog__close-button { width: 44px; height: 44px; flex: none; }
 .ticket-modal .takeoff-modal-dialog__body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: var(--dialog-pad); }
@@ -71,7 +71,7 @@ summary::marker { color: var(--takeoff-color-text-dim); }
 @media (max-width: 480px) {
   .ticket-card { padding: 20px; }
   .form-columns { grid-template-columns: 1fr; }
-  .ticket-modal { --dialog-pad: 20px; max-height: 94svh; }
+  .ticket-modal { --dialog-pad: 20px; max-height: min(94svh, calc(100svh - var(--environment-banner-height) - 2rem)); }
   .ticket-modal .takeoff-modal-dialog__header { padding-block: 10px; }
   .ticket-form fieldset { padding: 16px; }
   .optional-fields > fieldset { padding-inline: 0; }
