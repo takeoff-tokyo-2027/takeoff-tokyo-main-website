@@ -2,6 +2,8 @@ name = "takeoff-tokyo-main-website"
 main = "workers/site.js"
 compatibility_date = "2026-11-01"
 compatibility_flags = ["nodejs_compat"]
+# Runtime variables are managed through Cloudflare Settings, separately from Builds.
+keep_vars = true
 
 [assets]
 directory = "./dist"

@@ -9,7 +9,7 @@ const root=resolve(import.meta.dirname,'..');
 const schema=resolve(process.env.SCHEMA_REPO_DIR||resolve(root,'../takeoff-tokyo-supabase'));
 const bin=name=>resolve(root,'node_modules/.bin',name);
 const file=resolve(root,'.env.local-testing.local');
-const configKeys=['SITE_URL','SUPABASE_URL','SUPABASE_SERVICE_ROLE_KEY','STRIPE_SECRET_KEY','STRIPE_WEBHOOK_SECRET','QR_SIGNING_SECRET','BREVO_API_KEY','BREVO_SENDER_EMAIL','SUPABASE_DB_SCHEMA','APP_ENV','LOCAL_EMAIL_URL','STAGING_EMAIL_ALLOWLIST'];
+const configKeys=['SITE_URL','SUPABASE_URL','SUPABASE_SERVICE_ROLE_KEY','STRIPE_SECRET_KEY','STRIPE_WEBHOOK_SECRET','QR_SIGNING_SECRET','BREVO_API_KEY','BREVO_SENDER_EMAIL','SUPABASE_DB_SCHEMA','APP_ENV','LOCAL_EMAIL_URL','STAGING_EMAIL_ALLOWLIST','ADMIN_BOOTSTRAP_EMAILS'];
 function clean(){const env={...process.env};for(const k of Object.keys(env))if(k.startsWith('VITE_')||configKeys.includes(k))delete env[k];return env;}
 function run(name,args,options={}){return execFileSync(bin(name),args,{cwd:root,env:clean(),stdio:'inherit',...options});}
 const action=process.argv[2]||'serve';

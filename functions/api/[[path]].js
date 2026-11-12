@@ -1,5 +1,6 @@
 import { newTicketInput, editTicketInput, priceInput, applyTicketPrice } from '../lib/ticket-pricing.js';
 import { requestSignIn } from '../lib/sign-in.js';
+import { ensureBootstrapAdmin } from '../lib/admin-bootstrap.js';
 import { environment, stripeSecret, matchesPayment, allowedOrigin } from '../lib/environment.js';
 import Stripe from 'stripe';
 import { EVENT, HttpError, required, json, rpc, authenticate, body, uuid, email, text, checkoutInput, attendeeInput, origin, sha256, signCredential, verifyCredential, discountCode, discountInput } from '../lib/core.js';
@@ -57,6 +58,7 @@ async function route(request, env) {
     return json(await rpc(env, 'ticket_command', { p_action: 'discount:quote', p_user: null, p_data: { qty: selection.qty, discountCode: discountCode(input.discountCode) } }));
   }
   const user = await authenticate(env, request);
+  if (path === '/api/me' || path.startsWith('/api/admin/')) await ensureBootstrapAdmin(env, user);
   const command = (action, data = {}) => rpc(env, 'ticket_command', { p_action: action, p_user: user.id, p_data: data });
   if (method === 'GET' && path === '/api/me') return json(await command('me'));
   if (method === 'GET' && path === '/api/me/tickets') return json({ tickets: await command('tickets:list') });

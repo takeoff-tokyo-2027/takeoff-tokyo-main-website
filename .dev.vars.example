@@ -2,6 +2,8 @@
 SITE_URL=http://localhost:8788
 SUPABASE_URL=https://YOUR_PROJECT.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=
+# Optional admin bootstrap list for this environment only.
+ADMIN_BOOTSTRAP_EMAILS=
 # Catalog pricing requires Products/Prices read+write; checkout also needs Checkout/Coupons write and Charges read.
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=

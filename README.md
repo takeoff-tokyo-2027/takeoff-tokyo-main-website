@@ -18,7 +18,17 @@ Currency amounts in questionnaire APIs are integer minor units (USD 12.34 = 1234
 
 ## Staff access and Crew
 
-Staff must sign in once through Supabase so they have an `auth.users` record. Provision roles using privileged SQL, never client-editable user metadata:
+For the first production admin, add this server-only setting in **website Worker → Settings → Variables and Secrets → Production**, then save and deploy:
+
+```dotenv
+ADMIN_BOOTSTRAP_EMAILS=ankhasgreens@gmail.com
+```
+
+Open `/admin` and request an email OTP for that address. A listed email can request its first code without an existing staff record or purchase. Only after Supabase verifies the signed-in user's email does the API upsert their admin role into `public.event_staff`. Requesting a code grants no permissions. Additional bootstrap addresses are comma-separated and matched exactly, ignoring case and whitespace. The production template includes the initial address; set the actual runtime binding in Cloudflare. Never use a `VITE_*` variable for this list.
+
+Local and staging bootstrap lists are independent and empty by default. Existing database-assigned staff retain access without being listed. Bootstrap roles persist in the database: to revoke access, remove the email from the bootstrap list **and** remove its event staff row. While listed, a verified account will regain its admin role on its next account/admin request. No schema migration is needed.
+
+Alternatively, create the staff member's Supabase Auth account and provision roles using privileged SQL, never client-editable user metadata:
 
 ```sql
 insert into public.event_staff(event_id,user_id,role)
@@ -58,6 +68,7 @@ The buyer initially controls every purchased admission; each QR requires explici
 ## Deployment and email delivery
 
 - Deploy the website as a **Cloudflare Worker**. Root `wrangler.toml` defines `workers/site.js` as the entry point and `dist` as the static asset directory. Build first, then run `npx wrangler deploy` for production; Workers Builds settings are below. The Worker reuses the API in `functions/api/[[path]].js`. `/api` and `/api/*` always invoke it, including browser navigation; other paths use static assets with SPA fallback for account/admin deep links. Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as build variables. Use a restricted Stripe API key with Checkout Sessions write and Products/Prices read and write, and Charges read permissions where supported. Set `SITE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, and `QR_SIGNING_SECRET` as website Worker runtime secrets. Keep the QR signing secret stable; changing it invalidates issued QR codes.
+- **Build settings are separate from runtime settings.** `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` belong under Settings → Builds → Variables and Secrets. Backend credentials and `ADMIN_BOOTSTRAP_EMAILS` belong under Settings → Variables and Secrets for the selected runtime environment. A key added only under Builds is unavailable to API requests. Both Worker configs use `keep_vars = true` so subsequent deployments preserve dashboard-managed runtime variables; secrets are also preserved. If `/api/ticket-types` reports "Ticketing service is not configured", check that `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` exist in the deployed runtime, not just in Builds.
 - Deploy `workers/email-outbox.js` using `wrangler deploy --config workers/wrangler.toml`. It runs every minute. Set `SITE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `BREVO_API_KEY`, and `BREVO_SENDER_EMAIL` as **email Worker** secrets using `wrangler secret put KEY --config workers/wrangler.toml`. This separate Worker does not inherit website secrets. For local email development, use `npm run email:dev`, which uses only the generated local configuration and captures messages in the local inbox.
 - Enable Stripe webhook events `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `checkout.session.expired`, and `charge.refunded` at the production webhook URL. Payment methods are selected dynamically from your Stripe dashboard configuration, including delayed methods when enabled. Stripe webhook fulfillment verifies server-retrieved payment totals, is transactional, and is safe to retry concurrently. Configure live prices separately from test prices before enabling sales.
 - Configure the Supabase production Site URL, six-digit OTP email template/expiration, production SMTP, and Brevo verified sender before launch. Test both a new account and an existing account: requesting a code alone must not authenticate, and incorrect, expired, or reused codes must fail. Successful verification must preserve the current ticket selection or pending transfer invitation.
@@ -72,6 +83,7 @@ The buyer initially controls every purchased admission; each QR requires explici
 - `npm run build`: TypeScript and Vite. Include VITE Supabase values to also compile the enabled ticketing interface.
 - After building, `npm run check:worker` dry-runs the website Worker and assets without deploying; `npm run email:check` checks the scheduled email Worker. `check:functions` is retained as an alias for `check:worker`.
 - After building, `npm run test:worker` runs the real Worker/assets router locally with dummy credentials, checking SPA deep links, API navigation, authentication, and environment/origin guards. It does not use a hosted database.
+- With local Supabase running and `.env.local-testing.local` prepared, `npm run test:admin-bootstrap` verifies a real local OTP and concurrent admin-role initialization, then removes its temporary account/role. It refuses hosted Supabase URLs.
 - Before launch, use Stripe test mode and two distinct verified emails to purchase multiple ticket types, transfer one admission, confirm the old QR is rejected, and test the staff scanner against test-event days in an isolated Supabase project. Also verify canceled checkout, delayed webhook/confirmation, failed email delivery, refund revocation, and mobile camera permissions.
 
 ## Discount codes
