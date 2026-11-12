@@ -1,0 +1,71 @@
+# Dependencies and package manager caches
+node_modules/
+.npm/
+.pnpm-store/
+.yarn/
+.bun/
+
+# Generated builds and deployment output
+dist/
+build/
+out/
+coverage/
+.nyc_output/
+storybook-static/
+.vercel/
+.netlify/
+
+# Tool caches and generated TypeScript metadata
+.cache/
+.vite/
+.vite-temp/
+.turbo/
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
+
+# Logs and runtime files
+*.log
+*.pid
+*.pid.lock
+*.stackdump
+report.*.json
+
+# Local environment and credentials (keep shareable templates)
+.env
+.env.*
+!.env.example
+!.env.*.example
+!.env.sample
+!.env.template
+*.local
+.aws/
+.codex/
+.agents/
+
+# Editor state and temporary files
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+*.swp
+*.swo
+*~
+*.tmp
+*.temp
+*.bak
+*.orig
+*.rej
+
+# OS metadata, including Windows download metadata in WSL
+.DS_Store
+._*
+.Spotlight-V100/
+.Trashes/
+Thumbs.db
+Thumbs.db:encryptable
+Desktop.ini
+$RECYCLE.BIN/
+*:Zone.Identifier

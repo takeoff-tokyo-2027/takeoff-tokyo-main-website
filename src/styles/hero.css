@@ -1,0 +1,54 @@
+.hero-page {
+  --hero-spacing: clamp(20px, 3vw, 40px);
+  /* Adjust the video independently of the space reserved for its frame. */
+  --hero-video-width: 100%;
+
+  display: grid;
+  align-items: start;
+  min-height: 100svh;
+  padding-block: var(--hero-spacing);
+  background: var(--takeoff-color-bg-black);
+}
+
+.hero-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--hero-spacing);
+  width: 100%;
+  min-width: 0;
+  text-align: center;
+}
+
+.hero-media {
+  position: relative;
+  width: 100%;
+  /* Trim the source's empty vertical padding while preserving the lettering. */
+  aspect-ratio: 3 / 1;
+  overflow: hidden;
+}
+
+.hero-video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: block;
+  width: var(--hero-video-width);
+  max-width: none;
+  height: auto;
+  opacity: 0.85;
+  transform: translate(-50%, -50%);
+}
+
+.event-date {
+  margin: 0;
+  margin-block-start: calc(var(--hero-spacing) * -0.5);
+  padding-inline: 20px;
+  font-size: clamp(20px, 2.7vw, 34px);
+  font-weight: var(--takeoff-font-weight-regular);
+  line-height: 1.2;
+}
+
+.register-button {
+  gap: 12px;
+}
