@@ -7,7 +7,7 @@
     "dev": "node scripts/local-testing.mjs serve",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test": "node test/core.test.js && node test/worker.test.js && node test/sign-in.test.js && node test/admin-bootstrap.test.js && node test/ticket-pricing.test.js && node test/email.test.js && node test/rpc.test.js && node test/database.test.js",
+    "test": "node test/core.test.js && node test/worker.test.js && node test/worker-email.test.js && node test/sign-in.test.js && node test/admin-bootstrap.test.js && node test/ticket-pricing.test.js && node test/email.test.js && node test/rpc.test.js && node test/database.test.js",
     "dev:functions": "node scripts/local-testing.mjs serve",
     "email:dev": "node scripts/local-testing.mjs email",
     "check:functions": "npm run check:worker",
