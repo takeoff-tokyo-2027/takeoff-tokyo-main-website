@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { TakeoffBadge, TakeoffButton, TakeoffCard, TakeoffInput, useTakeoffToast } from '@takeoff-tokyo/ui';
 import { AccessibleModal } from './AccessibleModal';
 import { api, money } from './client';
+import { NumberInput } from '../components/NumberInput';
 export interface AdminTicketType {
  id:string;code:string;label:string;public_purchase:boolean;deleted_at:string|null;ever_purchased:boolean;purchase_count:number;
  prices:{id:string;amount:number;currency:string;active:boolean;created_at:string}[];
@@ -53,7 +54,7 @@ export function TicketCatalogManager(){
     {editor.kind==='create'&&<><label>Ticket code<TakeoffInput required value={code} placeholder="general_admission" title="Start with a letter; use lowercase letters, numbers or underscores." onChange={e=>setCode(e.target.value.toLowerCase())} pattern="[a-z][a-z0-9_]{0,39}" maxLength={40} disabled={busy}/></label></>}
     {(editor.kind==='create'||editor.kind==='edit')&&<label>Ticket name<TakeoffInput required maxLength={120} value={name} disabled={busy} onChange={e=>setName(e.target.value)}/></label>}
     {editor.kind==='edit'&&editor.ticket.code!=='crew'&&<label className="ticket-checkbox"><input type="checkbox" checked={available} disabled={busy||!editor.ticket.prices.some(p=>p.active)} onChange={e=>setAvailable(e.target.checked)}/>Available for public purchase{!editor.ticket.prices.some(p=>p.active)&&' (set a price first)'}</label>}
-    {editor.kind==='price'&&<><label>Price (JPY)<TakeoffInput type="number" min="1" max="99999999" step="1" required value={amount} disabled={busy} onChange={e=>setAmount(e.target.value)}/></label></>}
+    {editor.kind==='price'&&<NumberInput label="Price (JPY)" min={1} max={99999999} step={1} required value={amount} disabled={busy} onValueChange={setAmount}/>}
     {editor.kind==='delete'&&<p>Delete {editor.ticket.label}?</p>}
     {error&&<p role="alert" className="ticket-error">{error}</p>}
     <div className="ticket-actions form-actions"><TakeoffButton type="submit" variant={editor.kind==='delete'?'danger':'cyan'} disabled={busy}>{busy?'Saving…':editor.kind==='delete'?'Confirm deletion':editor.kind==='create'?'Create type':'Save changes'}</TakeoffButton><TakeoffButton type="button" variant="ghost" disabled={busy} onClick={()=>setEditor(null)}>Cancel</TakeoffButton></div>

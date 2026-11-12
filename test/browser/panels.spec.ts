@@ -122,7 +122,7 @@ test('admin creates public types, manages JPY prices and cannot delete purchased
  await page.goto('/admin/ticket-types');await expect(page.getByRole('button',{name:'Delete Startup',exact:true})).toBeDisabled();
  await page.getByRole('button',{name:'Create ticket type',exact:true}).click();const dialog=page.getByRole('dialog');
  await dialog.getByLabel('Ticket code').fill('general');await dialog.getByLabel('Ticket name').fill('General admission');await dialog.getByRole('button',{name:'Create type',exact:true}).click();await expect(dialog).toBeHidden();
- await page.getByRole('button',{name:'Set price',exact:true}).click();await dialog.getByLabel('Price (JPY)').fill('4500');await dialog.getByRole('button',{name:'Save changes'}).click();await expect(dialog).toBeHidden();
+ await page.getByRole('button',{name:'Set price',exact:true}).click();await dialog.getByRole('spinbutton',{name:'Price (JPY)',exact:true}).fill('4500');await dialog.getByRole('button',{name:'Save changes'}).click();await expect(dialog).toBeHidden();
  await page.getByRole('button',{name:'Edit General admission',exact:true}).click();await dialog.getByLabel('Available for public purchase').check();await dialog.getByRole('button',{name:'Save changes'}).click();await expect(dialog).toBeHidden();
  await expect(page.getByText('¥4,500', {exact:false}).first()).toBeVisible();await page.getByRole('button',{name:'Close sales',exact:true}).click();await expect(page.getByRole('button',{name:'Open sales',exact:true})).toBeVisible();
  await page.setViewportSize({width:320,height:800});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();
@@ -294,6 +294,72 @@ test('unavailable restored quantities can be removed before a fresh purchase',as
  await dialog.getByRole('spinbutton',{name:'Startup quantity'}).fill('1');await expect(dialog.getByRole('button',{name:'Continue to secure payment'})).toBeDisabled();
  await dialog.getByRole('button',{name:'Remove Retired',exact:true}).click();await expect(dialog.getByRole('button',{name:'Continue to secure payment'})).toBeEnabled();expect(submitted).toBe(false);expect(await page.evaluate(()=>JSON.parse(sessionStorage.getItem('takeoff-checkout-request')!).key)).toBe(oldKey);
  await dialog.getByRole('button',{name:'Continue to secure payment'}).click();await expect(page).toHaveURL('https://checkout.stripe.test/available');expect(submitted).toBe(true);
+});
+
+for(const width of [320,1280])test(`SOH quantity controls update selection and total at ${width}px`,async({page})=>{
+ await page.setViewportSize({width,height:900});await setup(page,null,false);
+ let checkouts=0;await page.route('**/api/create-checkout',route=>{checkouts++;return route.fulfill({json:{}});});
+ await page.goto('/');await page.getByRole('button',{name:'REGISTER'}).click();
+ const modal=page.getByRole('dialog'),quantity=modal.getByRole('spinbutton',{name:'Startup quantity'});
+ const decrease=modal.getByRole('button',{name:'Decrease Startup quantity'}),increase=modal.getByRole('button',{name:'Increase Startup quantity'});
+ await expect(quantity).toHaveValue('0');await expect(decrease).toBeDisabled();
+ await increase.click();await increase.click();await expect(quantity).toHaveValue('2');
+ await expect(modal.locator('.ticket-quantity')).toHaveClass(/ticket-quantity--picked/);
+ await expect(modal.locator('.checkout-footer strong')).toHaveText('¥6,000');
+ await decrease.click();await expect(quantity).toHaveValue('1');
+ await quantity.focus();await page.keyboard.press('ArrowUp');await expect(quantity).toHaveValue('2');
+ await quantity.fill('100');await expect(increase).toBeDisabled();
+ expect(await quantity.evaluate(el=>{const input=el as HTMLInputElement,context=document.createElement('canvas').getContext('2d')!;context.font=getComputedStyle(input).font;return input.clientWidth>=context.measureText(input.value).width;})).toBe(true);
+ await decrease.click();await expect(quantity).toHaveValue('99');
+ await quantity.fill('0');await expect(decrease).toBeDisabled();await expect(modal.locator('.ticket-quantity')).not.toHaveClass(/ticket-quantity--picked/);
+ await expect(modal.getByRole('button',{name:'Continue to secure payment'})).toBeDisabled();
+ expect(checkouts).toBe(0);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();
+ const fits=await modal.locator('.number-input').evaluate(el=>{const input=el.querySelector('input')!.getBoundingClientRect();const buttons=el.querySelectorAll('button');return input.left>=buttons[0].getBoundingClientRect().right&&input.right<=buttons[1].getBoundingClientRect().left;});expect(fits).toBe(true);
+});
+
+test('admin price controls respect bounds and submit the stepped value',async({page})=>{
+ await setup(page);let savedAmount:number|undefined;
+ await page.route('**/api/admin/ticket-types',route=>route.fulfill({json:{salesEnabled:true,ticketTypes:[{id,code:'startup',label:'Startup',public_purchase:true,deleted_at:null,ever_purchased:false,purchase_count:0,prices:[]}]}}));
+ await page.route(`**/api/admin/ticket-types/${id}/prices`,route=>{savedAmount=route.request().postDataJSON().amount;return route.fulfill({json:{}});});
+ await page.goto('/admin/ticket-types');await page.getByRole('button',{name:'Set price',exact:true}).click();
+ const modal=page.getByRole('dialog'),amount=modal.getByRole('spinbutton',{name:'Price (JPY)'});
+ await expect(amount).toHaveValue('');await modal.getByRole('button',{name:'Increase Price (JPY)'}).click();await expect(amount).toHaveValue('1');
+ await expect(modal.getByRole('button',{name:'Decrease Price (JPY)'})).toBeDisabled();
+ await amount.fill('99999999');await expect(modal.getByRole('button',{name:'Increase Price (JPY)'})).toBeDisabled();
+ await amount.fill('4200');await modal.getByRole('button',{name:'Decrease Price (JPY)'}).click();await expect(amount).toHaveValue('4199');
+ await modal.getByRole('button',{name:'Save changes',exact:true}).click();await expect(modal).toBeHidden();expect(savedAmount).toBe(4199);
+});
+
+test('admin percentage controls support decimals, empty edits, and presets',async({page})=>{
+ await setup(page);let savedPercentage:number|undefined;
+ await page.route('**/api/admin/ticket-types',route=>route.fulfill({json:{ticketTypes:[{id,code:'startup',label:'Startup',deleted_at:null}]}}));
+ await page.route('**/api/admin/discounts',route=>{if(route.request().method()==='POST'){savedPercentage=route.request().postDataJSON().percentage;return route.fulfill({json:{}});}return route.fulfill({json:{discounts:[]}});});
+ await page.goto('/admin/discounts');await page.getByRole('button',{name:'Create discount',exact:true}).click();
+ const modal=page.getByRole('dialog'),percentage=modal.getByRole('spinbutton',{name:'Percentage discount'});
+ await percentage.fill('');await expect(percentage).toHaveValue('');await modal.getByRole('button',{name:'Increase Percentage discount'}).click();await expect(percentage).toHaveValue('0.01');
+ await expect(modal.getByRole('button',{name:'Decrease Percentage discount'})).toBeDisabled();
+ await percentage.fill('12.34');await modal.getByRole('button',{name:'Increase Percentage discount'}).click();await expect(percentage).toHaveValue('12.35');
+ await percentage.fill('100');await expect(modal.getByRole('button',{name:'Increase Percentage discount'})).toBeDisabled();
+ await modal.getByRole('button',{name:'20%',exact:true}).click();await expect(percentage).toHaveValue('20');
+ await modal.getByRole('button',{name:'Decrease Percentage discount'}).click();await expect(percentage).toHaveValue('19.99');
+ await modal.getByLabel('Discount code',{exact:true}).fill('SAVE');await modal.getByRole('checkbox',{name:'Startup'}).check();
+ await modal.getByRole('button',{name:'Create discount',exact:true}).click();await expect(modal).toBeHidden();expect(savedPercentage).toBe(19.99);
+});
+
+for(const type of ['startup','investor'])test(`account ${type} amount controls retain currency precision and optional values`,async({page})=>{
+ await setup(page,null);let profile:Record<string,unknown>|undefined;
+ await page.route('**/api/ticket-types',route=>route.fulfill({json:{salesEnabled:true,types:[],currencies:[{code:'JPY',decimals:0},{code:'USD',decimals:2}],sectors:[]}}));
+ await page.route('**/api/me/tickets',route=>route.fulfill({json:{tickets:[{id,type,label:type==='startup'?'Startup':'Investor',status:'active',attendee:{full_name:'Test holder',email:'buyer@example.com'},startup:type==='startup'?{funding_amount:100,funding_currency:'JPY'}:null,investor:type==='investor'?{investment_min:100,investment_currency:'JPY'}:null,used:false,transferable:true,transfer:null}]}}));
+ await page.route(`**/api/tickets/${id}/attendee`,route=>{profile=route.request().postDataJSON().profile;return route.fulfill({json:{}});});
+ await page.goto(`/account/tickets/${id}/edit`);await page.locator('.optional-fields > summary').click();
+ const label=type==='startup'?'Funding sought':'Typical investment — minimum',amount=page.getByRole('spinbutton',{name:label,exact:true});
+ await expect(amount).toHaveValue('100');await page.getByRole('button',{name:`Increase ${label}`,exact:true}).click();await expect(amount).toHaveValue('101');
+ await page.getByRole('combobox',{name:'Currency',exact:true}).selectOption('USD');await page.getByRole('button',{name:`Increase ${label}`,exact:true}).click();await expect(amount).toHaveValue('101.01');
+ await amount.fill('0');await expect(page.getByRole('button',{name:`Decrease ${label}`,exact:true})).toBeDisabled();
+ await amount.fill('12.34');await page.getByRole('button',{name:`Increase ${label}`,exact:true}).click();await expect(amount).toHaveValue('12.35');
+ await page.getByRole('button',{name:'Save details',exact:true}).click();await expect(page).toHaveURL(new RegExp(`/account/tickets/${id}$`));
+ expect(profile?.[type==='startup'?'funding_amount':'investment_min']).toBe(1235);expect(profile?.[type==='startup'?'funding_currency':'investment_currency']).toBe('USD');
+ if(type==='investor')expect(profile?.investment_max).toBeNull();
 });
 
 test('an existing pending checkout with an unavailable type resumes without changing its key',async({page})=>{

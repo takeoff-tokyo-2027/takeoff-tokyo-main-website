@@ -11,10 +11,21 @@
 .ticket-form select { padding: 12px; background: var(--takeoff-color-bg-input-field); color: var(--takeoff-color-text-primary-white); border: 1px solid var(--takeoff-border-default); border-radius: var(--takeoff-radius-small); font: inherit; }
 .ticket-form .ticket-checkbox { display: flex; align-items: center; gap: 12px; min-height: 44px; }
 .ticket-checkbox input { width: 18px; height: 18px; flex: none; accent-color: var(--takeoff-accent-cyan-base); }
-.ticket-form .ticket-quantity { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 16px; border: 1px solid var(--takeoff-border-default); border-radius: var(--takeoff-radius-medium); }
-.ticket-quantity > span { min-width: 0; overflow-wrap: anywhere; font-size: 1rem; }
-.ticket-quantity input { max-width: 88px; text-align: center; flex: none; font-variant-numeric: tabular-nums; }
-.ticket-quantity small { display: block; margin-top: 4px; font-size: .8125rem; color: var(--takeoff-color-text-dim); }
+.ticket-form .ticket-quantity { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: .9rem 1rem; background: var(--takeoff-color-bg-surface-card); border: 1px solid var(--takeoff-border-default); border-radius: 10px; }
+.ticket-form .ticket-quantity--picked { border-color: var(--takeoff-accent-cyan-base); }
+.ticket-quantity > span { min-width: 0; overflow-wrap: anywhere; font-size: .95rem; font-weight: 600; }
+.ticket-quantity small { display: block; margin-top: .15rem; font-size: .9rem; font-weight: 400; color: var(--takeoff-accent-cyan-base); }
+.number-field { display: grid; gap: 8px; min-width: 0; }
+.number-input { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 6px 8px; background: var(--takeoff-color-bg-input-field); border: 1px solid var(--takeoff-border-default); border-radius: 8px; }
+.number-input:focus-within { border-color: var(--takeoff-accent-cyan-base); }
+.number-input__button { display: flex; align-items: center; justify-content: center; flex: none; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 6px; background: rgba(255, 255, 255, .08); color: var(--takeoff-color-text-primary-white); font: inherit; font-size: 1rem; cursor: pointer; }
+.number-input__button:hover:not(:disabled) { background: rgba(255, 255, 255, .15); }
+.number-input__button:disabled { opacity: .4; cursor: default; }
+.number-input__button:focus-visible, .number-input__value:focus-visible { outline: 2px solid var(--takeoff-accent-cyan-base); outline-offset: 2px; }
+.ticket-form input.number-input__value { flex: 1; width: 0; min-width: 24px; min-height: 32px; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--takeoff-color-text-primary-white); font: inherit; font-weight: 600; font-variant-numeric: tabular-nums; text-align: center; appearance: textfield; -moz-appearance: textfield; }
+.number-input__value::-webkit-inner-spin-button, .number-input__value::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.number-field--compact { flex: none; width: 104px; }
+.number-field--compact .number-input { padding: 0; background: transparent; border: 0; }
 .ticket-card { padding: 24px; margin-block: 20px; border: 1px solid var(--takeoff-border-default); border-radius: var(--takeoff-radius-medium); background: var(--takeoff-color-bg-surface-card); }
 .ticket-card h3 { margin-top: 0; }
 .ticket-card > .ticket-view { margin-top: 8px; align-self: start; }
