@@ -1,4 +1,5 @@
 import { HttpError, email, required, rpc, sha256 } from './core.js';
+import { isBootstrapAdmin } from './admin-bootstrap.js';
 
 export async function requestSignIn(env, input) {
   const address = email(input.email);
@@ -9,10 +10,11 @@ export async function requestSignIn(env, input) {
     if (typeof input.transferToken !== 'string' || !/^[\da-f-]{72}$/.test(input.transferToken)) throw new HttpError(400, 'Open a valid ticket transfer invitation to sign in');
     tokenHash = await sha256(input.transferToken);
   }
-  const eligible = await rpc(env, 'request_sign_in', { p_email: address, p_purpose: purpose, p_token_hash: tokenHash });
+  const eligible = (purpose === 'admin' && isBootstrapAdmin(env, address)) ||
+    await rpc(env, 'request_sign_in', { p_email: address, p_purpose: purpose, p_token_hash: tokenHash });
   if (eligible !== true) throw new HttpError(403, purpose === 'tickets' ? 'No tickets are associated with this email. Check your purchase or ticket email address.' : purpose === 'orders' ? 'No purchases are associated with this email.' : purpose === 'transfer' ? 'This invitation is unavailable or belongs to a different email.' : 'This email does not have staff access.');
 
-  // Only request a code after the database has confirmed eligibility. Never
+  // Only request a code after database or bootstrap-list eligibility. Never
   // return privileged credentials or an authenticated session from this route.
   const key = required(env, 'SUPABASE_SERVICE_ROLE_KEY');
   const response = await fetch(`${required(env, 'SUPABASE_URL')}/auth/v1/otp`, {
