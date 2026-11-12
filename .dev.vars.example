@@ -8,6 +8,6 @@ ADMIN_BOOTSTRAP_EMAILS=
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 QR_SIGNING_SECRET=
-# Email Worker secrets (also set SITE_URL and both SUPABASE values on the Worker)
+# Website Worker email delivery (separate from Supabase Auth SMTP)
 BREVO_API_KEY=
 BREVO_SENDER_EMAIL=

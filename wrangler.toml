@@ -5,6 +5,9 @@ compatibility_flags = ["nodejs_compat"]
 # Runtime variables are managed through Cloudflare Settings, separately from Builds.
 keep_vars = true
 
+[triggers]
+crons = ["* * * * *"]
+
 [assets]
 directory = "./dist"
 binding = "ASSETS"
