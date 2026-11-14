@@ -40,7 +40,10 @@ test('built website, API and scheduled email delivery work in the Workers runtim
   } }] });
   t.after(async () => { try { await server.close(); } finally { rmSync(folder, { recursive: true, force: true }); } });
   await server.listen();
-  for (const path of ['/', '/account/tickets', '/account/orders/example', '/admin/discounts']) {
+  for (const path of [
+    '/', '/account/tickets', '/account/orders/example', '/admin/discounts',
+    '/terms-conditions', '/privacy-policy', '/scta', '/terms-and-conditions/', '/commercial-disclosure/',
+  ]) {
     const response = await server.fetch(path, { headers: { 'Sec-Fetch-Mode': 'navigate' } });
     assert.equal(response.status, 200, path);
     assert.match(response.headers.get('Content-Type'), /text\/html/);
