@@ -18,7 +18,7 @@ The Code quality GitHub Actions workflow runs lint, formatting, and the CSS poli
 
 The app loads `@takeoff-tokyo/ui/css`, then `src/styles/tokens.css`, global typography/layout rules, and component styles. Reuse the library's `--takeoff-*` colors, fonts, borders, and radii. Site typography and layout conventions live in `tokens.css` as `--site-*` variables. Spacing uses a 4px scale in rem (for example, `--site-space-4` is 1rem).
 
-All text uses **one shared size**, `--site-font-size-body: 1rem` (16px at the default root). This includes page and section headings, body copy, inputs, selects, buttons, labels, badges, helper text, tables, dialogs, and notifications. Use weight, font family, spacing, and color to distinguish roles; do not add size variants. The root remains `100%` so user font preferences and browser text resizing still apply.
+Body and UI text use `--site-font-size-body: 1rem` (16px at the default root). Public section headings use `--site-font-size-section-title: 2rem` (32px). Keep these shared sizes in `tokens.css`; use weight, font family, spacing, and color for other distinctions. The root remains `100%` so user font preferences and browser text resizing still apply.
 
 `typography.css` applies the shared size to native headings and the UI library's components. Standard text uses a 1.5 line height; long-form copy uses 1.65. Keep TT Lakes Neue for display headings and Lato for body/UI text.
 

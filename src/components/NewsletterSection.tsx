@@ -13,27 +13,19 @@ export function NewsletterSection() {
           applications for Takeoff Tokyo 2027.
         </p>
 
-        <form onSubmit={handleSubmit} className="newsletter-form">
-          <div className="newsletter-field">
-            <TakeoffInput
-              type="email"
-              placeholder="Enter your email address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              focusAccent="cyan"
-              required
-              aria-label="Email Address"
-              className="newsletter-input"
-            />
-          </div>
-          <div className="newsletter-submit">
-            <TakeoffButton type="submit" variant="cyan" size="md" isBlock isLoading={isSubmitting}>
-              Subscribe
-            </TakeoffButton>
-          </div>
-        </form>
-
-        <p className="newsletter-note">Zero spam. Unsubscribe at any time.</p>
+        <div className="newsletter-card">
+          <iframe
+            className="newsletter-embed"
+            src="https://takeofftokyo.substack.com/embed"
+            title="Subscribe to Takeoff Tokyo on Substack"
+            width="480"
+            height="320"
+            loading="lazy"
+          />
+          <p className="newsletter-note">
+            Subscriptions are managed by Substack. Unsubscribe at any time.
+          </p>
+        </div>
       </div>
     </section>
   );

@@ -5,6 +5,7 @@
 }
 
 html {
+  color-scheme: dark;
   scroll-behavior: smooth;
   --environment-banner-height: 0px;
   background: var(--takeoff-color-bg-black);

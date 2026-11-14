@@ -30,13 +30,14 @@ for (const width of [320, 640, 768, 1440]) {
       const about = document.querySelector('#about')!;
       const tickets = document.querySelector('#tickets')!;
       const newsletter = document.querySelector('#newsletter')!;
+      const who = document.querySelector('#who')!;
       const containers = [
         about.querySelector('.site-container')!,
         tickets.querySelector('.site-container')!,
         document.querySelector('.footer-inner')!,
       ];
       return {
-        titles: [about, tickets, newsletter].map((section) => {
+        titles: [about, tickets, newsletter, who].map((section) => {
           const el = section.querySelector('h2')!;
           const style = getComputedStyle(el);
           return {
@@ -51,6 +52,15 @@ for (const width of [320, 640, 768, 1440]) {
           };
         }),
         sectionPadding: [about, tickets, newsletter].map((el) => getComputedStyle(el).paddingTop),
+        cards: ['.ticket-offer', '.newsletter-card'].map((selector) => {
+          const style = getComputedStyle(document.querySelector(selector)!);
+          return {
+            background: style.backgroundColor,
+            border: style.border,
+            borderRadius: style.borderRadius,
+            padding: style.padding,
+          };
+        }),
         edges: containers.map((el) => {
           const rect = el.getBoundingClientRect(),
             style = getComputedStyle(el);
@@ -67,6 +77,9 @@ for (const width of [320, 640, 768, 1440]) {
     });
     expect(styles.titles[0]).toEqual(styles.titles[1]);
     expect(styles.titles[0]).toEqual(styles.titles[2]);
+    expect(styles.titles[0]).toEqual(styles.titles[3]);
+    expect(styles.titles[0].fontSize).toBe('32px');
+    expect(styles.cards[0]).toEqual(styles.cards[1]);
     expect(styles.sectionPadding[0]).toBe(styles.sectionPadding[1]);
     expect(styles.sectionPadding[0]).toBe(styles.sectionPadding[2]);
     expect(styles.edges[0]).toEqual(styles.edges[1]);
@@ -91,12 +104,12 @@ for (const width of [320, 640, 768, 1440]) {
           .map((el) => getComputedStyle(el).fontSize),
       ),
     ]);
-    expect(textSizes).toEqual(['16px']);
+    expect(textSizes.sort()).toEqual(['16px', '32px']);
   });
 }
 
 for (const fontPercent of [100, 200]) {
-  test(`all text follows the shared font size at ${fontPercent}% text size`, async ({ page }) => {
+  test(`body text and section titles scale at ${fontPercent}% text size`, async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 900 });
     await page.goto('/account/tickets');
     await page.addStyleTag({ content: `html { font-size: ${fontPercent}%; }` });
@@ -109,15 +122,15 @@ for (const fontPercent of [100, 200]) {
     await page.addStyleTag({ content: `html { font-size: ${fontPercent}%; }` });
     await expect(page.getByRole('heading', { name: 'About', exact: true })).toHaveCSS(
       'font-size',
-      `${(16 * fontPercent) / 100}px`,
+      `${(32 * fontPercent) / 100}px`,
     );
     await expect(page.getByRole('heading', { name: 'Tickets', exact: true })).toHaveCSS(
       'font-size',
-      `${(16 * fontPercent) / 100}px`,
+      `${(32 * fontPercent) / 100}px`,
     );
     await expect(page.getByRole('heading', { name: 'Newsletter', exact: true })).toHaveCSS(
       'font-size',
-      `${(16 * fontPercent) / 100}px`,
+      `${(32 * fontPercent) / 100}px`,
     );
     await page.getByRole('button', { name: 'Get startup ticket', exact: true }).click();
     const modal = page.getByRole('dialog', { name: 'Buy tickets' });

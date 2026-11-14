@@ -1,4 +1,4 @@
-/* One text size throughout the site, including the UI library's literal sizes. */
+/* Shared body/UI size, including the UI library's literal sizes. */
 h1,
 h2,
 h3,
@@ -61,9 +61,11 @@ h6,
 
 .section-title {
   margin: 0 0 var(--site-heading-gap);
+  font-size: var(--site-font-size-section-title);
   font-family: var(--takeoff-font-family-display-title);
   font-weight: var(--takeoff-font-weight-medium);
   line-height: var(--site-line-height-title);
   text-align: center;
   text-transform: uppercase;
+  overflow-wrap: anywhere;
 }

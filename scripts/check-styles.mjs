@@ -33,7 +33,7 @@ const typeProperties =
   /^(?:font(?:-family|-size|-weight)?|line-height|letter-spacing|border-radius|z-index)$/;
 const spacingProperties =
   /^(?:(?:margin|padding|scroll-margin|scroll-padding)(?:-[\w-]+)?|gap|row-gap|column-gap|outline-offset)$/;
-const fontRoles = new Set(['body']);
+const fontRoles = new Set(['body', 'section-title']);
 const breakpoints = new Set(['480', '640', '768', '1024', '1200']);
 
 function checkVariables(file, css) {
@@ -42,7 +42,7 @@ function checkVariables(file, css) {
   }
   for (const [, role] of css.matchAll(/--site-font-size-([\w-]+)\s*:/g)) {
     if (file !== tokenFile || !fontRoles.has(role)) {
-      report(file, `font-size-${role}: use the single shared font size in ${tokenFile}`);
+      report(file, `font-size-${role}: use a shared font size defined in ${tokenFile}`);
     }
   }
 }
@@ -67,7 +67,7 @@ function checkDeclarations(file, css) {
       property === 'font-size' &&
       !/^(?:100%|inherit|var\(--site-font-size-[\w-]+\))$/.test(value.trim())
     ) {
-      report(file, 'font-size: use --site-font-size-body (root font-size may be 100%)');
+      report(file, 'font-size: use a shared --site-font-size-* variable (root may be 100%)');
     }
     if (
       typeProperties.test(property) &&

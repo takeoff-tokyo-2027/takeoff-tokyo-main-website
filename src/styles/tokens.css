@@ -20,9 +20,10 @@
   --site-checkout-footer-clearance: 11.25rem;
   --site-space-20: 5rem;
 
-  /* One font size for every text role, including headings and controls.
+  /* Shared sizes for body/UI text and public section titles.
      The root stays at 100% to respect the browser's text-size preference. */
   --site-font-size-body: 1rem;
+  --site-font-size-section-title: 2rem;
   --site-line-height-solid: 1;
   --site-line-height-display: 1.15;
   --site-line-height-title: 1.2;

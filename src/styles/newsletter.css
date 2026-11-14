@@ -1,8 +1,6 @@
 .newsletter-section {
   min-width: 0;
   padding-block: var(--site-section-spacing);
-  position: relative;
-  min-width: 0;
   overflow-wrap: anywhere;
 }
 
@@ -24,21 +22,12 @@
 .newsletter-card {
   width: 100%;
   max-width: var(--site-width-auth);
-  margin: 0 auto;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.newsletter-field {
-  flex: 1 1 260px;
-  min-width: 0;
-}
-
-.newsletter-submit {
-  /* Keep the input and button in place when the button content changes. */
-  flex: 0 0 9rem;
-  max-width: 100%;
+  margin-inline: auto;
+  padding: var(--site-card-padding);
+  overflow: hidden;
+  border: 1px solid var(--takeoff-border-default);
+  border-radius: var(--takeoff-radius-medium);
+  background: var(--takeoff-color-bg-surface-card);
 }
 
 .newsletter-embed {
@@ -51,7 +40,7 @@
   font-family: var(--takeoff-font-family-body);
   color: var(--takeoff-color-text-secondary);
   margin: 0;
-  padding: var(--site-space-5) var(--site-card-padding);
+  padding-top: var(--site-space-5);
   border-top: 1px solid var(--takeoff-border-default);
   font-weight: var(--takeoff-font-weight-light);
 }
