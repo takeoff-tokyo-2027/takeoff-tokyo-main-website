@@ -1,6 +1,4 @@
 import React from "react";
-import backgroundVideo from "../assets/videos/takeoff-tokyo-background-video.mp4";
-
 import { Link, useLocation } from "react-router-dom";
 import backgroundVideo from "../assets/videos/takeoff-tokyo-background-video.mp4";
 import { Footer } from "./components/Footer";
