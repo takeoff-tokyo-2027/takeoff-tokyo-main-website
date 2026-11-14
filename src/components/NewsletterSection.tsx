@@ -1,3 +1,4 @@
+import "../styles/newsletter.css";
 import React, { useState } from "react";
 import {
   TakeoffInput,
@@ -36,74 +37,27 @@ export const NewsletterSection: React.FC = () => {
   return (
     <section
       id="newsletter"
-      style={{
-        padding: "7rem 0 8rem",
-        position: "relative",
-      }}
+      className="newsletter-section"
     >
-      <div
-        className="takeoff-container"
-        style={{
-          maxWidth: "640px",
-          margin: "0 auto",
-          textAlign: "center",
-        }}
-      >
-        <p
-          style={{
-            fontFamily: "var(--takeoff-font-family-body)",
-            fontSize: "0.8125rem",
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            color: "rgba(255, 255, 255, 0.5)",
-            margin: "0 0 1rem 0",
-          }}
-        >
+      <div className="site-container newsletter-container">
+        <p className="newsletter-eyebrow">
           Newsletter
         </p>
 
-        <h2
-          style={{
-            fontFamily: "var(--takeoff-font-family-display-title)",
-            fontSize: "clamp(1.75rem, 3.5vw, 2.5rem)",
-            fontWeight: 700,
-            letterSpacing: "-0.02em",
-            color: "#ffffff",
-            margin: "0 0 1rem 0",
-            textTransform: "uppercase",
-          }}
-        >
+        <h2 className="newsletter-title">
           Join Our Newsletter
         </h2>
 
-        <p
-          style={{
-            fontFamily: "var(--takeoff-font-family-body)",
-            fontSize: "1rem",
-            lineHeight: 1.7,
-            color: "rgba(255, 255, 255, 0.65)",
-            margin: "0 auto 2.5rem",
-            maxWidth: "500px",
-            fontWeight: 300,
-          }}
-        >
+        <p className="newsletter-copy">
           Be the first to hear about speaker announcements, ticket drops, and
           pitch contest applications for Takeoff Tokyo 2027.
         </p>
 
         <form
           onSubmit={handleSubmit}
-          style={{
-            display: "flex",
-            gap: "0.75rem",
-            maxWidth: "460px",
-            margin: "0 auto",
-            flexDirection: "row",
-            flexWrap: "wrap",
-            justifyContent: "center",
-          }}
+          className="newsletter-form"
         >
-          <div style={{ flex: "1 1 260px" }}>
+          <div className="newsletter-field">
             <TakeoffInput
               type="email"
               placeholder="Enter your email address"
@@ -112,13 +66,7 @@ export const NewsletterSection: React.FC = () => {
               focusAccent="cyan"
               required
               aria-label="Email Address"
-              style={{
-                width: "100%",
-                boxSizing: "border-box",
-                backgroundColor: "rgba(18, 18, 23, 0.8)",
-                border: "1px solid rgba(255, 255, 255, 0.12)",
-                color: "#ffffff",
-              }}
+              className="newsletter-input"
             />
           </div>
           <div>
@@ -133,15 +81,7 @@ export const NewsletterSection: React.FC = () => {
           </div>
         </form>
 
-        <p
-          style={{
-            fontFamily: "var(--takeoff-font-family-body)",
-            fontSize: "0.75rem",
-            color: "rgba(255, 255, 255, 0.4)",
-            marginTop: "1.25rem",
-            fontWeight: 300,
-          }}
-        >
+        <p className="newsletter-note">
           Zero spam. Unsubscribe at any time.
         </p>
       </div>

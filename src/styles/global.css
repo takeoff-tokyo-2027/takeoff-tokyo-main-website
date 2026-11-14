@@ -10,15 +10,18 @@ html {
   background: var(--takeoff-color-bg-black);
   color: var(--takeoff-color-text-primary-white);
   font-family: var(--takeoff-font-family-body);
+  font-size: 100%;
+  line-height: var(--site-line-height-body);
 }
 
 html:has(.environment-banner) {
   --environment-banner-height: calc(2.25rem + env(safe-area-inset-top, 0px));
-  scroll-padding-top: calc(var(--environment-banner-height) + 16px);
+  scroll-padding-top: calc(var(--environment-banner-height) + var(--site-space-4));
 }
 
 body {
   margin: 0;
+  font-size: var(--site-font-size-body);
   min-width: 280px;
   min-height: 100svh;
   padding-block-start: var(--environment-banner-height);
@@ -40,18 +43,18 @@ body {
   position: fixed;
   inset-block-start: 0;
   inset-inline: 0;
-  z-index: 1200;
+  z-index: var(--site-layer-banner);
   display: grid;
   place-items: center;
   block-size: var(--environment-banner-height);
   padding-block-start: env(safe-area-inset-top, 0px);
-  padding-inline: 16px;
+  padding-inline: var(--site-space-4);
   background: var(--takeoff-semantic-warning-text);
   color: var(--takeoff-color-bg-black);
   border-bottom: 1px solid var(--takeoff-semantic-warning-border);
-  font-size: .875rem;
-  font-weight: 700;
-  line-height: 1.25;
+  font-size: var(--site-font-size-body);
+  font-weight: var(--takeoff-font-weight-bold);
+  line-height: var(--site-line-height-compact);
   text-align: center;
 }
 

@@ -6,6 +6,32 @@ The shared footer links to the public Terms & Conditions (`/terms-conditions`), 
 
 Google Analytics uses measurement ID `G-Y1MHMNDZHN` through `src/analytics.ts`, enabled for production builds on `takeoff-tokyo.com` and `www.takeoff-tokyo.com`. In the GA4 web stream, enable Enhanced measurement → Page views → Page changes based on browser history events to measure React navigation. The app uses Google's automatic pageviews; it does not send additional manual pageviews. See [Google's SPA measurement guide](https://developers.google.com/analytics/devguides/collection/ga4/single-page-applications).
 
+## CSS styling
+
+The app loads `@takeoff-tokyo/ui/css`, then `src/styles/tokens.css`, global typography/layout rules, and component styles. Reuse the library's `--takeoff-*` colors, fonts, borders, and radii. Site typography and layout conventions live in `tokens.css` as `--site-*` variables. Spacing uses a 4px scale in rem (for example, `--site-space-4` is 1rem).
+
+All text uses **one shared size**, `--site-font-size-body: 1rem` (16px at the default root). This includes page and section headings, body copy, inputs, selects, buttons, labels, badges, helper text, tables, dialogs, and notifications. Use weight, font family, spacing, and color to distinguish roles; do not add size variants. The root remains `100%` so user font preferences and browser text resizing still apply.
+
+`typography.css` applies the shared size to native headings and the UI library's components. Standard text uses a 1.5 line height; long-form copy uses 1.65. Keep TT Lakes Neue for display headings and Lato for body/UI text.
+
+Apply `.site-container` once at each outer page or section boundary. It centers content and applies the same responsive 16–32px gutter. Select a narrower or wider container by setting `--site-container-width: var(--site-width-...)` on that element. Nested grids, cards, and forms use the existing gutter rather than adding another container.
+
+| `--site-width-*` | Maximum outer width | Use |
+| --- | --- | --- |
+| `auth` | 32rem / 512px | Sign-in and compact forms |
+| `form` | 45rem / 720px | Attendee forms, dialogs, newsletter section |
+| `reading` | 52rem / 832px | Legal documents, ticket offers, hero copy region |
+| `page` | 75rem / 1200px | Public sections, footer, account pages |
+| `wide` | 90rem / 1440px | Admin pages and their header |
+
+Use `--site-measure-copy` (65ch) for prose, `--site-section-spacing` (48–80px) for public section padding, `--site-heading-gap` for heading separation, `--site-grid-gap` for content grids, and `--site-card-padding` for cards. The hero media remains full width. Breakpoints are **480, 640, 768, 1024, and 1200px**; use range syntax such as `(width < 768px)` and `(width >= 768px)` so fractional viewport widths have no gaps. Small forms compact at 480px, ticket offers stack below 640px, general two-column content stacks below 768px, admin navigation becomes a sidebar at 1024px, and catalog grids expand at 1200px.
+
+Use CSS classes for component styling, including hover states and responsive rules. Component-specific geometry (grid columns, aspect ratios, video sizing), structural values (`0`, `100%`, visually hidden dimensions), and media-query breakpoints stay in their stylesheets; native CSS variables cannot be used as media-query conditions. Keep responsive component variables such as `--hero-spacing` and `--dialog-pad` local and derive them from shared tokens.
+
+Run `npm run check:styles` to check all source stylesheets for undefined variables, literal colors, typography/spacing values that bypass tokens, undocumented font roles, arbitrary maximum widths/breakpoints, and source components for inline styles, embedded style tags, and direct style assignments. The check also runs with `npm test`, `npm run build`, `npm run build:staging`, and `npm run build:cloudflare`.
+
+Email HTML in `workers/email-template.js` and `supabase/templates/email-otp.html` retains inline literal styles for email-client compatibility; those templates do not load the app's CSS variables. Generated builds, dependency CSS, and SVG artwork are outside the site-style policy.
+
 ## Local setup
 
 1. Use Bun **1.4.2**, pinned in `package.json`, and install dependencies with `bun install --frozen-lockfile`.

@@ -3,7 +3,7 @@ import "../styles/about.css";
 
 export const AboutSection: React.FC = () => (
   <section id="about" className="about-section" aria-labelledby="about-title">
-    <div className="about-container">
+    <div className="site-container about-container">
       <h2 id="about-title" className="about-title">About</h2>
       <div className="about-content">
         <div className="about-copy">

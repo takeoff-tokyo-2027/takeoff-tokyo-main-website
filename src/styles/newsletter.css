@@ -1,0 +1,68 @@
+.newsletter-section {
+  padding-block: var(--site-section-spacing);
+  position: relative;
+}
+
+.newsletter-container {
+  --site-container-width: var(--site-width-form);
+  text-align: center;
+}
+
+.newsletter-eyebrow {
+  font-family: var(--takeoff-font-family-body);
+  font-size: var(--site-font-size-body);
+  letter-spacing: var(--site-tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--site-text-eyebrow);
+  margin: 0 0 var(--site-space-4) 0;
+}
+
+.newsletter-title {
+  font-family: var(--takeoff-font-family-display-title);
+  font-size: var(--site-font-size-body);
+  font-weight: var(--takeoff-font-weight-bold);
+  letter-spacing: var(--site-tracking-tight);
+  color: var(--takeoff-color-text-primary-white);
+  margin: 0 0 var(--site-space-4) 0;
+  text-transform: uppercase;
+}
+
+.newsletter-copy {
+  font-family: var(--takeoff-font-family-body);
+  font-size: var(--site-font-size-body);
+  line-height: var(--site-line-height-copy);
+  color: var(--site-text-copy);
+  margin: 0 auto var(--site-space-10);
+  max-width: var(--site-measure-copy);
+  font-weight: var(--takeoff-font-weight-light);
+}
+
+.newsletter-form {
+  display: flex;
+  gap: var(--site-space-3);
+  max-width: var(--site-width-auth);
+  margin: 0 auto;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.newsletter-field {
+  flex: 1 1 260px;
+}
+
+.newsletter-form .newsletter-input {
+  width: 100%;
+  box-sizing: border-box;
+  background-color: var(--site-surface-input-overlay);
+  border: 1px solid var(--site-border-strong);
+  color: var(--takeoff-color-text-primary-white);
+}
+
+.newsletter-note {
+  font-family: var(--takeoff-font-family-body);
+  font-size: var(--site-font-size-body);
+  color: var(--site-text-note);
+  margin-top: var(--site-space-5);
+  font-weight: var(--takeoff-font-weight-light);
+}

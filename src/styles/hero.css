@@ -1,5 +1,5 @@
 .hero-page {
-  --hero-spacing: clamp(20px, 3vw, 40px);
+  --hero-spacing: clamp(var(--site-space-5), 3vw, var(--site-space-10));
   /* Adjust the video independently of the space reserved for its frame. */
   --hero-video-width: 100%;
 
@@ -44,12 +44,12 @@
 .event-date {
   margin: 0;
   margin-block-start: calc(var(--hero-spacing) * -0.5);
-  padding-inline: 20px;
-  font-size: clamp(20px, 2.7vw, 34px);
+  padding-inline: var(--site-gutter);
+  font-size: var(--site-font-size-body);
   font-weight: var(--takeoff-font-weight-regular);
-  line-height: 1.2;
+  line-height: var(--site-line-height-title);
 }
 
 .register-button {
-  gap: 12px;
+  gap: var(--site-space-3);
 }

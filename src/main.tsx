@@ -1,7 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "@takeoff-tokyo/ui/css";
+import "./styles/tokens.css";
 import "./styles/global.css";
+import "./styles/typography.css";
+import "./styles/layout.css";
 import "./styles/hero.css";
 import App from "./App";
 import { EnvironmentBanner } from "./ticketing/EnvironmentBanner";

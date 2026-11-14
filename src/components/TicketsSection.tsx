@@ -19,7 +19,7 @@ export function TicketsSection({ catalog, error, onPurchase, onRetry, hasSelecti
   const codes = ['startup', 'investor', ...(catalog?.types.filter(t => !['startup', 'investor'].includes(t.code)).map(t => t.code) || [])];
 
   return <section id="tickets" className="tickets-section" aria-labelledby="tickets-title">
-    <div className="takeoff-container">
+    <div className="site-container">
       <h2 id="tickets-title">Tickets</h2>
       {!catalog && !error && <p role="status">Loading ticket availability…</p>}
       {error && <div role="alert"><p>Unable to load ticket availability. {error}</p><TakeoffButton variant="secondary" onClick={onRetry}>Try again</TakeoffButton></div>}

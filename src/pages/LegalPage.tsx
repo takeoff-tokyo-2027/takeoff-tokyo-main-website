@@ -149,7 +149,7 @@ export function LegalPage({ document }: { document: typeof legalRoutes[keyof typ
   }, [title]);
 
   return (
-    <main className="legal-page">
+    <main className="site-container legal-page">
       <Link className="legal-home" to="/">← Back to Takeoff Tokyo</Link>
       <article aria-labelledby="legal-title">
         <h1 id="legal-title" ref={heading} tabIndex={-1}>{title}</h1>
