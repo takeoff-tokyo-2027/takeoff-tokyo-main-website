@@ -6,7 +6,7 @@ Google Analytics uses measurement ID `G-Y1MHMNDZHN` through `src/analytics.ts`, 
 
 ## Local setup
 
-1. Install dependencies with `bun install --frozen-lockfile`.
+1. Use Bun **1.4.2**, pinned in `package.json`, and install dependencies with `bun install --frozen-lockfile`.
 2. Use your existing hosted Supabase project for production; use the separate local stack and staging schemas described below for testing. Apply all SQL files from the canonical `../takeoff-tokyo-supabase/supabase/migrations/` repository in filename order once using the SQL editor or a database migration tool. This migration assumes Supabase's `auth.users`, `anon`, `authenticated`, and `service_role` already exist. It is not an upgrade migration for soh.
 3. Copy `.env.example` to `.env.local` and set the public Supabase URL/key. Copy `.dev.vars.example` to `.dev.vars` and set backend credentials. Generate `QR_SIGNING_SECRET` with `openssl rand -hex 32`. Never expose service, Stripe, Brevo, or signing secrets as `VITE_*` variables.
 4. Enable Supabase email passwordless sign-in with **six-digit email OTP codes**. In Authentication → Email Templates, set the Magic Link template to the content of `supabase/templates/email-otp.html` (use the same code template for Confirm Signup if that template is used for new accounts). Include `{{ .Token }}` instead of a confirmation link. Keep OTP length at six digits, set OTP expiration to 10 minutes, and retain the provider’s resend/rate limits. Supabase Auth sends these codes; configure its SMTP sender for production. Brevo ticket emails are separate from authentication email. No ticket-holder passwords are created or stored by this app.
@@ -187,6 +187,8 @@ Add **only `staging`** to the project's Data API exposed schemas (keep `public` 
 ### Cloudflare Git branch configuration
 
 Connect the repository to the **website Worker** in Workers & Pages → Settings → Builds. Pages build settings and secrets do not migrate automatically. These settings use [Worker Previews](https://developers.cloudflare.com/workers/previews/get-started/), supported by the project's Wrangler version:
+
+The repository pins `bun@1.4.2` through `package.json`'s `packageManager` field, which [Workers Builds uses to select the package manager version](https://developers.cloudflare.com/workers/ci-cd/builds/build-image/#package-manager-versions) before installing dependencies. Bun 1.2.15 cannot parse the committed version 2 `bun.lock`; keep the lockfile and frozen installs. If the build configuration explicitly sets `BUN_VERSION`, set it to **`1.4.2`** as well, then retry the build. This must be a **build** variable; a runtime binding in `wrangler.toml` cannot fix dependency installation.
 
 1. Production branch: **`main`**.
 2. Preview deployment branch controls: **include only `dev`**.
