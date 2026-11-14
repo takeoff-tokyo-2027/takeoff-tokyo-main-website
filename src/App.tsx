@@ -1,5 +1,7 @@
 import React from "react";
-import { useLocation } from "react-router-dom";
+import backgroundVideo from "../assets/videos/takeoff-tokyo-background-video.mp4";
+
+import { Link, useLocation } from "react-router-dom";
 import backgroundVideo from "../assets/videos/takeoff-tokyo-background-video.mp4";
 import { Footer } from "./components/Footer";
 import { LegalPage, legalRoutes } from "./pages/LegalPage";
@@ -22,7 +24,10 @@ export const App: React.FC = () => {
             </div>
             <h1 id="hero-title" className="visually-hidden">Takeoff Tokyo</h1>
             <p className="event-date">March 17–18, 2027</p>
-            <Ticketing />
+            <div className="ticket-hero-actions">
+              <a className="takeoff-button takeoff-button--cyan takeoff-button--size-lg" href="#tickets">REGISTER ↗</a>
+              <Link className="takeoff-button takeoff-button--ghost" to="/account/tickets">My tickets</Link>
+            </div>
           </section>
           <AboutSection />
         </main>

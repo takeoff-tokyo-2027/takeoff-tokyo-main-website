@@ -12,6 +12,7 @@ import { AccessibleModal } from './AccessibleModal';
 import { AdminPages } from './AdminPages';
 import { statusLabel } from './display';
 import { NumberInput } from '../components/NumberInput';
+import { TicketsSection } from '../components/TicketsSection';
 
 type CheckoutRequest = { selection: string; key: string; orderId?: string };
 type CheckoutRecovery = CheckoutRequest & { reason: 'restart' | 'completed' };
@@ -60,6 +61,10 @@ export function Ticketing({purchaseOnly=false,onClose}: {purchaseOnly?:boolean;o
   const [session, setSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(!auth);
   const [catalog, setCatalog] = useState<Catalog | null>(null);
+  const [catalogError, setCatalogError] = useState('');
+  const [catalogAttempt, setCatalogAttempt] = useState(0);
+  const [checkoutStep, setCheckoutStep] = useState<'tickets' | 'details'>('tickets');
+  const stepHeading = useRef<HTMLHeadingElement>(null);
   const [me, setMe] = useState<Me | null>(null);
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const editing = editRoute ? tickets.find(t=>t.id===selectedId)||null : null;
@@ -107,7 +112,17 @@ export function Ticketing({purchaseOnly=false,onClose}: {purchaseOnly?:boolean;o
     return () => data.subscription.unsubscribe();
   }, []);
   useEffect(() => { if (session?.user.email) setBuyerEmail(current => current || session.user.email || ''); }, [session?.user.email]);
-  useEffect(() => { if (open || portal || purchaseOnly) void api<Catalog>('/ticket-types').then(setCatalog).catch(e => setError(e.message)); }, [open,portal,purchaseOnly]);
+  useEffect(() => {
+    let canceled = false;
+    setCatalogError('');
+    void api<Catalog>('/ticket-types').then(result => { if (!canceled) setCatalog(result); }).catch(e => { if (!canceled) setCatalogError(e.message); });
+    return () => { canceled = true; };
+  }, [open, portal, purchaseOnly, catalogAttempt]);
+  useEffect(() => {
+    if (!open) return;
+    const timer = setTimeout(() => stepHeading.current?.focus(), 0);
+    return () => clearTimeout(timer);
+  }, [checkoutStep, open]);
   useEffect(() => {
     setMe(null); setTickets([]); setQr(null); setOrder(null);
     if (session && portal) void reload().catch(e => { if (!(orderId && e instanceof ApiError && e.status === 403)) setError(e.message); });
@@ -160,7 +175,7 @@ export function Ticketing({purchaseOnly=false,onClose}: {purchaseOnly?:boolean;o
     if(location.pathname.startsWith('/account/orders')&&me&&!me.canAccessOrders) route('/account/tickets',{replace:true});
     if(location.pathname==='/admin'&&me) route(me.staffRole==='checkin'?'/admin/check-in':'/admin/registrations',{replace:true});
     const query=new URLSearchParams(location.search);
-    if(location.pathname==='/'&&(query.get('checkout')==='canceled'||query.get('canceled')==='1')){setOpen(true);setNotice('Payment canceled.');route('/',{replace:true});}
+    if(location.pathname==='/'&&(query.get('checkout')==='canceled'||query.get('canceled')==='1')){setCheckoutStep(savedSelection ? 'details' : 'tickets');setOpen(true);setNotice('Payment canceled.');route('/',{replace:true});}
     else if(location.pathname==='/'&&query.has('order')){setOpen(false);route(`/account/tickets?order=${encodeURIComponent(query.get('order')!)}`,{replace:true});}
     else if(location.pathname==='/'&&redirectInvitation&&transfer){setRedirectInvitation(false);setOpen(false);route('/account/transfer',{replace:true});}
     else if(location.pathname==='/'&&query.has('tickets')){setOpen(false);route('/account/tickets',{replace:true});}
@@ -175,6 +190,7 @@ export function Ticketing({purchaseOnly=false,onClose}: {purchaseOnly?:boolean;o
   function navigate(next: View) { setQr(null); setError(''); setNotice(''); if(next==='buy'){setOpen(true);return;} route(next==='transfer'?'/account/transfer':`/account/${next}`); }
   async function checkout(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (checkoutStep === 'tickets') { setCheckoutStep('details'); return; }
     const name = buyerName.trim();
     const email = buyerEmail.trim().toLowerCase();
     await run(async () => {
@@ -211,6 +227,7 @@ export function Ticketing({purchaseOnly=false,onClose}: {purchaseOnly?:boolean;o
     setQuote(null); setCheckoutRestart(null); setError('');
   }
   const total = catalog?.types.reduce((sum, t) => sum + t.amount * (qty[t.code] || 0), 0) || 0;
+  const selectionInvalid = busy || quantity < 1 || quantity > 100 || (!canResumeUnavailable && (total <= 0 || unavailable.length > 0));
   const content = <>
       <div className="ticket-panel" aria-busy={busy}>
       {portal && !auth ? <p>Ticketing unavailable.</p> : portal && !ready ? <p>Loading sign-in…</p> : portal && !session ? <>
@@ -223,9 +240,16 @@ export function Ticketing({purchaseOnly=false,onClose}: {purchaseOnly?:boolean;o
         {portal && location.pathname.startsWith('/admin') ? (me ? me.staffRole ? <AdminPages role={me.staffRole}/> : <p role="alert">You do not have permission to access administration.</p> : <p>Loading permissions…</p>) : <>
 
         {view === 'buy' && <form className="ticket-form checkout-form" onSubmit={checkout}>
-          {!catalog ? <p>Loading ticket availability…</p> : !catalog.salesEnabled || (!catalog.types.length && !unavailable.length) ? <p>Ticket sales are not open yet.</p> : <>
+          {catalogError ? <div role="alert"><p>{catalogError}</p><TakeoffButton type="button" variant="secondary" onClick={()=>setCatalogAttempt(current=>current+1)}>Try again</TakeoffButton></div> : !catalog ? <p role="status">Loading ticket availability…</p> : !catalog.salesEnabled || (!catalog.types.length && !unavailable.length) ? <p>Ticket sales are not open yet.</p> : <>
+          <h3 ref={stepHeading} tabIndex={-1} className="checkout-step">{checkoutStep === 'tickets' ? '1. Select tickets' : '2. Buyer details'}</h3>
+          {checkoutStep === 'tickets' ? <>
           {catalog.types.map(t => <div className={`ticket-quantity${qty[t.code] > 0 ? ' ticket-quantity--picked' : ''}`} key={t.code}><span>{t.label}<small>{money(t.amount, t.currency)} per ticket</small></span><NumberInput compact label={`${t.label} quantity`} min={0} max={100} step={1} value={qty[t.code] || 0} disabled={busy} onValueChange={value => setQty(current => ({ ...current, [t.code]: Number(value) }))} /></div>)}
           {!!unavailable.length&&<section className="checkout-unavailable"><h3>Unavailable tickets</h3>{unavailable.map(([code,count])=><div className="page-heading" key={code}><span>{statusLabel(code)} × {count}</span><TakeoffButton type="button" variant="ghost" disabled={busy} aria-label={`Remove ${statusLabel(code)}`} onClick={()=>removeUnavailable(code)}>Remove</TakeoffButton></div>)}</section>}
+          </> : <>
+          <section className="checkout-summary" aria-label="Selected tickets">
+            {Object.entries(qty).filter(([, count]) => count > 0).map(([code, count]) => <p key={code}>{catalog.types.find(t=>t.code===code)?.label || statusLabel(code)} × {count}</p>)}
+            <TakeoffButton type="button" variant="ghost" disabled={busy} onClick={()=>setCheckoutStep('tickets')}>Edit tickets</TakeoffButton>
+          </section>
           <label>Buyer’s full name<TakeoffInput name="name" value={buyerName} onChange={e => setBuyerName(e.target.value)} maxLength={200} required autoComplete="name" /></label>
           <label>Buyer’s email<TakeoffInput type="email" name="email" value={buyerEmail} onChange={e => setBuyerEmail(e.target.value)} maxLength={254} required autoComplete="email" /></label>
           <details className="checkout-discount" open={savedSelection?.discountCode?true:undefined}><summary>Discount code</summary><div className="ticket-form"><label>Discount code<TakeoffInput value={discountCode} onChange={e=>setDiscountCode(e.target.value.toUpperCase())} maxLength={40} /></label>
@@ -237,7 +261,16 @@ export function Ticketing({purchaseOnly=false,onClose}: {purchaseOnly?:boolean;o
           </div></details>
           {appliedDiscount&&<p className="discount-saving">{appliedDiscount.code}: {appliedDiscount.percentage}% off eligible tickets · Saving {money(appliedDiscount.discountAmount)}</p>}
           {restartAvailable&&error&&<div className="ticket-error" role="alert"><p>{error}</p>{checkoutRestart?.reason==='completed'&&<Link to="/account">View purchases</Link>}</div>}
-          <div className="checkout-footer"><p>{canResumeUnavailable?'Total at checkout':'Total'} {!canResumeUnavailable&&<strong>{money(appliedDiscount?.total??total)}</strong>}</p><TakeoffButton variant="cyan" type={restartAvailable?"button":"submit"} onClick={restartAvailable?restartCheckout:undefined} disabled={busy || quantity < 1 || quantity > 100 || (!canResumeUnavailable && (total <= 0 || unavailable.length > 0))}>{busy ? 'Preparing checkout…' : restartAvailable ? checkoutRestart?.reason==='completed'?'Buy again':'Restart payment' : canResumeUnavailable?'Resume payment':'Continue to secure payment'}</TakeoffButton></div>
+          </>}
+          <div className="checkout-footer">
+            <p>{canResumeUnavailable ? 'Total at checkout' : 'Total'} {!canResumeUnavailable && <strong>{money(appliedDiscount?.total ?? total)}</strong>}</p>
+            {checkoutStep === 'tickets' ? <div className="checkout-navigation">
+              <TakeoffButton type="button" variant="secondary" onClick={()=>{setOpen(false);onClose?.();}}>Cancel</TakeoffButton>
+              <TakeoffButton variant="cyan" type="submit" disabled={selectionInvalid}>Continue</TakeoffButton>
+            </div> : <TakeoffButton variant="cyan" type={restartAvailable ? 'button' : 'submit'} onClick={restartAvailable ? restartCheckout : undefined} disabled={selectionInvalid}>
+              {busy ? 'Preparing checkout…' : restartAvailable ? checkoutRestart?.reason === 'completed' ? 'Buy again' : 'Restart payment' : canResumeUnavailable ? 'Resume payment' : 'Continue to secure payment'}
+            </TakeoffButton>}
+          </div>
           </>}
         </form>}
         {view === 'tickets' && !me?.canAccessTickets && !awaitingPayment && <section className="empty-state"><p>No tickets are associated with this account.</p>{me?.canAccessOrders && <Link to="/account/orders">View your orders</Link>}</section>}
@@ -280,11 +313,12 @@ export function Ticketing({purchaseOnly=false,onClose}: {purchaseOnly?:boolean;o
       {portal&&view==='transfer'&&<TakeoffButton variant="ghost" onClick={dismissInvitation}>Dismiss invitation</TakeoffButton>}
       {notice && <p role="status" className="ticket-notice">{notice}</p>}
       {error && !restartAvailable && <p role="alert" className="ticket-error">{error}</p>}
+      {portal && catalogError && <p role="alert" className="ticket-error">{catalogError}</p>}
       </div>
   </>;
   if(purchaseOnly)return <>{content}<TakeoffButton variant="ghost" onClick={onClose}>Close</TakeoffButton></>;
   if(portal)return <PanelShell me={me} email={session?.user.email} signOut={()=>void run(async()=>{await auth!.auth.signOut();setSession(null);})}>{content}</PanelShell>;
-  return <><div className="ticket-hero-actions"><TakeoffButton variant="cyan" size="lg" onClick={()=>setOpen(true)}>REGISTER ↗</TakeoffButton><Link className="takeoff-button takeoff-button--ghost" to="/account/tickets">My tickets</Link></div>
+  return <><TicketsSection catalog={catalog} error={catalogError} onRetry={()=>setCatalogAttempt(current=>current+1)} hasSelection={quantity>0} onPurchase={()=>{setCheckoutStep('tickets');setOpen(true);}}/>
    <AccessibleModal isOpen={open} onClose={()=>setOpen(false)} title="Buy tickets">{content}</AccessibleModal></>;
 
 }

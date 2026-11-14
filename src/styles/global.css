@@ -5,6 +5,7 @@
 }
 
 html {
+  scroll-behavior: smooth;
   --environment-banner-height: 0px;
   background: var(--takeoff-color-bg-black);
   color: var(--takeoff-color-text-primary-white);
@@ -56,4 +57,8 @@ body {
 
 .takeoff-modal-backdrop {
   inset-block-start: var(--environment-banner-height);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
 }
