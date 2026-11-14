@@ -33,11 +33,12 @@
 .newsletter-field {
   flex: 1 1 260px;
   min-width: 0;
-  margin-inline: auto;
-  overflow: hidden;
-  border: 1px solid var(--takeoff-border-default);
-  border-radius: var(--takeoff-radius-medium);
-  background: var(--takeoff-color-bg-surface-card);
+}
+
+.newsletter-submit {
+  /* Keep the input and button in place when the button content changes. */
+  flex: 0 0 9rem;
+  max-width: 100%;
 }
 
 .newsletter-embed {
