@@ -24,6 +24,7 @@ export const App: React.FC = () => {
             <p className="event-date">March 17–18, 2027</p>
             <Ticketing />
           </section>
+          <AboutSection />
         </main>
       )}
       <Footer />
