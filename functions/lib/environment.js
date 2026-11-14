@@ -1,3 +1,5 @@
+import { origin } from './core.js';
+
 export function environment(env) {
   const name = env.APP_ENV || 'production';
   if (!['local', 'staging', 'production'].includes(name)) throw new Error('Invalid APP_ENV');
@@ -49,7 +51,7 @@ export function matchesPayment(env, session, liveMode) {
 
 export function allowedOrigin(env, request) {
   const header = request.headers.get('Origin');
-  if (header === new URL(env.SITE_URL).origin) return true;
+  if (header === origin(env)) return true;
   if (environment(env) !== 'staging') return false;
   const url = new URL(request.url);
   const suffix = `.${env.PAGES_PROJECT_NAME || 'takeoff-tokyo-main-website'}.pages.dev`;

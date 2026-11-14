@@ -189,7 +189,15 @@ export function attendeeInput(data) {
   };
 }
 export function origin(env) {
-  return new URL(required(env, 'SITE_URL')).origin;
+  try {
+    const url = new URL(env.SITE_URL);
+    if (['http:', 'https:'].includes(url.protocol) && !url.username && !url.password)
+      return url.origin;
+  } catch {
+    // Report configuration failures without exposing the configured value.
+  }
+  console.error('SITE_URL must be configured as a valid HTTP(S) URL in the Worker runtime');
+  throw new HttpError(503, 'Ticketing service is not configured');
 }
 export async function sha256(value) {
   return Array.from(

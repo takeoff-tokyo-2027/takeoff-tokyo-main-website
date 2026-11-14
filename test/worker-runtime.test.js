@@ -14,7 +14,11 @@ test(
     const { rawConfig } = experimental_readRawConfig({ config: resolve('wrangler.toml') });
     assert.deepEqual(
       { ...rawConfig.previews.vars },
-      { APP_ENV: 'staging', SUPABASE_DB_SCHEMA: 'staging' },
+      {
+        APP_ENV: 'staging',
+        SUPABASE_DB_SCHEMA: 'staging',
+        SITE_URL: 'https://dev-takeoff-tokyo-main-website.ankhasgreens.workers.dev',
+      },
     );
     assert.deepEqual(rawConfig.triggers.crons, ['* * * * *']);
     let delivered = null,

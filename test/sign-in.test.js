@@ -127,3 +127,59 @@ test('OTP errors preserve rate limits and cross-origin requests cannot send code
   assert.equal((await onRequest({ request: foreign, env })).status, 403);
   assert.equal(calls, 2);
 });
+
+test('missing or invalid SITE_URL fails before sending codes with a configuration error', async (t) => {
+  const original = globalThis.fetch;
+  t.after(() => {
+    globalThis.fetch = original;
+  });
+  globalThis.fetch = async () => assert.fail('Misconfigured origin reached Supabase');
+  for (const SITE_URL of [undefined, '', 'dev.example', 'null', 'ftp://dev.example']) {
+    const response = await onRequest({
+      request: request({ email: 'holder@example.com' }),
+      env: { ...env, SITE_URL },
+    });
+    assert.equal(response.status, 503, `SITE_URL=${SITE_URL}`);
+    assert.deepEqual(await response.json(), { error: 'Ticketing service is not configured' });
+  }
+});
+
+test('staging Worker origin permits checked sign-in and rejects foreign origins', async (t) => {
+  const original = globalThis.fetch;
+  t.after(() => {
+    globalThis.fetch = original;
+  });
+  const staging = {
+    ...env,
+    APP_ENV: 'staging',
+    SUPABASE_DB_SCHEMA: 'staging',
+    SITE_URL: 'https://dev-takeoff-tokyo-main-website.ankhasgreens.workers.dev',
+  };
+  let calls = 0;
+  globalThis.fetch = async (url, options) => {
+    calls++;
+    if (String(url).endsWith('/request_sign_in')) {
+      assert.equal(options.headers['Content-Profile'], 'staging');
+      return Response.json(true);
+    }
+    assert.equal(String(url), `${staging.SUPABASE_URL}/auth/v1/otp`);
+    return Response.json({});
+  };
+  for (const origin of [
+    'https://evil.example',
+    `${staging.SITE_URL}.evil.example`,
+    'https://another-worker.ankhasgreens.workers.dev',
+    staging.SITE_URL,
+  ]) {
+    const response = await onRequest({
+      request: new Request(`${staging.SITE_URL}/api/auth/request-code`, {
+        method: 'POST',
+        headers: { Origin: origin, 'X-Takeoff-Environment': 'staging' },
+        body: JSON.stringify({ email: 'holder@example.com' }),
+      }),
+      env: staging,
+    });
+    assert.equal(response.status, origin === staging.SITE_URL ? 200 : 403);
+    assert.equal(calls, origin === staging.SITE_URL ? 2 : 0);
+  }
+});
