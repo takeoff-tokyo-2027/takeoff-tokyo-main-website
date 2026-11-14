@@ -6,6 +6,12 @@ The shared footer links to the public Terms & Conditions (`/terms-conditions`), 
 
 Google Analytics uses measurement ID `G-Y1MHMNDZHN` through `src/analytics.ts`, enabled for production builds on `takeoff-tokyo.com` and `www.takeoff-tokyo.com`. In the GA4 web stream, enable Enhanced measurement → Page views → Page changes based on browser history events to measure React navigation. The app uses Google's automatic pageviews; it does not send additional manual pageviews. See [Google's SPA measurement guide](https://developers.google.com/analytics/devguides/collection/ga4/single-page-applications).
 
+## Code quality
+
+Run `bun run lint` for ESLint checks and `bun run format:check` to check Prettier formatting. Use `bun run lint:fix` for automatic lint fixes and `bun run format` to format the code. The commands also work through `npm run`.
+
+The Code quality GitHub Actions workflow runs lint, formatting, and the CSS policy check on every push and pull request. Checks report failures without modifying the pushed code. Generated files, local configuration, assets, and the separately maintained Supabase files are excluded from formatting.
+
 ## CSS styling
 
 The app loads `@takeoff-tokyo/ui/css`, then `src/styles/tokens.css`, global typography/layout rules, and component styles. Reuse the library's `--takeoff-*` colors, fonts, borders, and radii. Site typography and layout conventions live in `tokens.css` as `--site-*` variables. Spacing uses a 4px scale in rem (for example, `--site-space-4` is 1rem).
@@ -14,15 +20,17 @@ All text uses **one shared size**, `--site-font-size-body: 1rem` (16px at the de
 
 `typography.css` applies the shared size to native headings and the UI library's components. Standard text uses a 1.5 line height; long-form copy uses 1.65. Keep TT Lakes Neue for display headings and Lato for body/UI text.
 
+Public section headings use `className="section-title"` for the same font, weight, line height, alignment, capitalization, and bottom spacing. Keep these rules in `typography.css`; public component styles inherit the shared font size rather than repeating it.
+
 Apply `.site-container` once at each outer page or section boundary. It centers content and applies the same responsive 16–32px gutter. Select a narrower or wider container by setting `--site-container-width: var(--site-width-...)` on that element. Nested grids, cards, and forms use the existing gutter rather than adding another container.
 
-| `--site-width-*` | Maximum outer width | Use |
-| --- | --- | --- |
-| `auth` | 32rem / 512px | Sign-in and compact forms |
-| `form` | 45rem / 720px | Attendee forms, dialogs, newsletter section |
-| `reading` | 52rem / 832px | Legal documents, ticket offers, hero copy region |
-| `page` | 75rem / 1200px | Public sections, footer, account pages |
-| `wide` | 90rem / 1440px | Admin pages and their header |
+| `--site-width-*` | Maximum outer width | Use                                              |
+| ---------------- | ------------------- | ------------------------------------------------ |
+| `auth`           | 32rem / 512px       | Sign-in and compact forms                        |
+| `form`           | 45rem / 720px       | Attendee forms, dialogs, newsletter section      |
+| `reading`        | 52rem / 832px       | Legal documents, ticket offers, hero copy region |
+| `page`           | 75rem / 1200px      | Public sections, footer, account pages           |
+| `wide`           | 90rem / 1440px      | Admin pages and their header                     |
 
 Use `--site-measure-copy` (65ch) for prose, `--site-section-spacing` (48–80px) for public section padding, `--site-heading-gap` for heading separation, `--site-grid-gap` for content grids, and `--site-card-padding` for cards. The hero media remains full width. Breakpoints are **480, 640, 768, 1024, and 1200px**; use range syntax such as `(width < 768px)` and `(width >= 768px)` so fractional viewport widths have no gaps. Small forms compact at 480px, ticket offers stack below 640px, general two-column content stacks below 768px, admin navigation becomes a sidebar at 1024px, and catalog grids expand at 1200px.
 
@@ -74,24 +82,24 @@ Crew recipients must also have signed in and verified their email once before is
 
 All responses are JSON with `Cache-Control: no-store`. Errors return `{"error":"..."}`. The catalog, checkout creation, discount preview, and guarded OTP request are public; the Stripe webhook verifies its signature. All account, ticket-management, and admin routes require `Authorization: Bearer <Supabase access token>`. Mutations with an Origin header must match `SITE_URL`. RLS is enabled and direct browser table/RPC access is revoked; API service-only transactions enforce ownership and staff roles.
 
-| Endpoint | Behavior |
-|---|---|
-| `GET /api/ticket-types` | Public prices, sales flag, sector and currency options; never Crew. |
-| `POST /api/auth/request-code` | `{email,purpose:"tickets"\|"orders"\|"transfer"\|"admin",transferToken?}`. Checks the database before asking Supabase Auth to email an OTP. Transfer sign-in requires the matching, valid invitation token. |
-| `GET /api/me` | Verified email, event staff role, buyer's order summaries. |
-| `POST /api/create-checkout` | Public `{name, email, qty:{<public-ticket-code>:quantity}, requestKey:<UUID>, discountCode?}`; returns `{orderId,url}`. Max 100 total tickets, price selected server-side. Reusing a request key requires identical input, including email. |
-| `GET /api/orders/:id` | Buyer-only order/items and ticket status; transferred attendees' PII and QR codes are omitted. |
-| `GET /api/me/tickets` | Current holder's tickets, attendee/questionnaire data, pending transfer. |
-| `PATCH /api/tickets/:id/attendee` | `{name,company?,role?,profile:{...}}`; email always comes from verified sign-in. Optional typed fields follow the SQL profile column names; investor `sectors` is an array of sector codes. |
-| `GET /api/tickets/:id/qr` | Holder-only opaque signed `{credential}`; requires a completed basic attendee profile. Rendered locally as a QR image. |
-| `POST /api/tickets/:id/transfers` | `{email}`; queues an invitation, valid for 72 hours or until event start. |
-| `DELETE /api/transfers/:id` | Sender cancels a pending transfer. |
-| `POST /api/transfers/:token/accept` | Recipient's verified email must match invitation. Atomically changes holder, revokes the old QR and clears old profile answers. |
-| `POST /api/checkins` | Staff-only `{credential}`; returns admission or duplicate result for today's Tokyo event day. |
-| `GET /api/admin/tickets?type=&status=&offset=0` | Admin-only listing, 100 records per page. |
-| `POST /api/admin/crew-tickets` | Admin-only `{name,email}`. |
-| `POST /api/admin/tickets/:id/revoke` | Admin-only permanent revocation, including pending transfers and credentials. |
-| `POST /api/stripe-webhook` | Signed Stripe payment/refund events. Never accepts browser proof of payment. |
+| Endpoint                                        | Behavior                                                                                                                                                                                                                                    |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/ticket-types`                         | Public prices, sales flag, sector and currency options; never Crew.                                                                                                                                                                         |
+| `POST /api/auth/request-code`                   | `{email,purpose:"tickets"\|"orders"\|"transfer"\|"admin",transferToken?}`. Checks the database before asking Supabase Auth to email an OTP. Transfer sign-in requires the matching, valid invitation token.                                 |
+| `GET /api/me`                                   | Verified email, event staff role, buyer's order summaries.                                                                                                                                                                                  |
+| `POST /api/create-checkout`                     | Public `{name, email, qty:{<public-ticket-code>:quantity}, requestKey:<UUID>, discountCode?}`; returns `{orderId,url}`. Max 100 total tickets, price selected server-side. Reusing a request key requires identical input, including email. |
+| `GET /api/orders/:id`                           | Buyer-only order/items and ticket status; transferred attendees' PII and QR codes are omitted.                                                                                                                                              |
+| `GET /api/me/tickets`                           | Current holder's tickets, attendee/questionnaire data, pending transfer.                                                                                                                                                                    |
+| `PATCH /api/tickets/:id/attendee`               | `{name,company?,role?,profile:{...}}`; email always comes from verified sign-in. Optional typed fields follow the SQL profile column names; investor `sectors` is an array of sector codes.                                                 |
+| `GET /api/tickets/:id/qr`                       | Holder-only opaque signed `{credential}`; requires a completed basic attendee profile. Rendered locally as a QR image.                                                                                                                      |
+| `POST /api/tickets/:id/transfers`               | `{email}`; queues an invitation, valid for 72 hours or until event start.                                                                                                                                                                   |
+| `DELETE /api/transfers/:id`                     | Sender cancels a pending transfer.                                                                                                                                                                                                          |
+| `POST /api/transfers/:token/accept`             | Recipient's verified email must match invitation. Atomically changes holder, revokes the old QR and clears old profile answers.                                                                                                             |
+| `POST /api/checkins`                            | Staff-only `{credential}`; returns admission or duplicate result for today's Tokyo event day.                                                                                                                                               |
+| `GET /api/admin/tickets?type=&status=&offset=0` | Admin-only listing, 100 records per page.                                                                                                                                                                                                   |
+| `POST /api/admin/crew-tickets`                  | Admin-only `{name,email}`.                                                                                                                                                                                                                  |
+| `POST /api/admin/tickets/:id/revoke`            | Admin-only permanent revocation, including pending transfers and credentials.                                                                                                                                                               |
+| `POST /api/stripe-webhook`                      | Signed Stripe payment/refund events. Never accepts browser proof of payment.                                                                                                                                                                |
 
 The buyer initially controls every purchased admission; each QR requires explicit attendee details. Bulk buyers can transfer unused admissions without completing those details. Recipients accept after email sign-in, then provide their own profile and questionnaire. Their ticket does not grant access to the original order. Forwarding an existing QR is not a transfer: accepting a transfer revokes the prior credential. The new holder may transfer onward before first admission. The buyer cannot reclaim an accepted transfer.
 
@@ -128,14 +136,14 @@ Edits affect future orders; existing checkouts preserve their code, percentage, 
 
 Additional discount API endpoints (only the preview is public):
 
-| Endpoint | Purpose |
-|---|---|
-| `POST /api/discounts/quote` | `{discountCode, qty:{<public-ticket-code>:quantity}}`; returns validated subtotal, savings, and total. |
-| `GET /api/admin/discounts` | Admin list with selected ticket types and successful usage counts. |
-| `POST /api/admin/discounts` | Admin create: `{code, percentage, tickets:["startup"], active:true}`. |
-| `PATCH /api/admin/discounts/:id` | Admin edit with the same fields. |
-| `DELETE /api/admin/discounts/:id` | Admin delete; returns conflict if already used. |
-| `GET /api/admin/discounts/:id/uses?offset=0` | Admin-only successful purchasing-email history. |
+| Endpoint                                     | Purpose                                                                                                |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `POST /api/discounts/quote`                  | `{discountCode, qty:{<public-ticket-code>:quantity}}`; returns validated subtotal, savings, and total. |
+| `GET /api/admin/discounts`                   | Admin list with selected ticket types and successful usage counts.                                     |
+| `POST /api/admin/discounts`                  | Admin create: `{code, percentage, tickets:["startup"], active:true}`.                                  |
+| `PATCH /api/admin/discounts/:id`             | Admin edit with the same fields.                                                                       |
+| `DELETE /api/admin/discounts/:id`            | Admin delete; returns conflict if already used.                                                        |
+| `GET /api/admin/discounts/:id/uses?offset=0` | Admin-only successful purchasing-email history.                                                        |
 
 `POST /api/create-checkout` additionally accepts optional `discountCode`. Include it when deciding whether to reuse an idempotency key. No additional environment credentials are required.
 
@@ -161,11 +169,11 @@ Browser verification: install Chromium with `bunx playwright install chromium`. 
 
 ## Three environments: local, dev Preview, main Production
 
-| Environment | Website | Database | Auth / email |
-|---|---|---|---|
-| Local | `http://127.0.0.1:8788` | Local Docker Supabase, `public` | Separate local Auth users; OTP and ticket messages captured at `http://127.0.0.1:54324` |
-| Hosted staging | `dev` branch, Cloudflare Worker Preview | Existing hosted project, `staging` / `staging_private` | Shared hosted Auth; separate staging staff roles and allowlisted ticket emails |
-| Production | `main` branch, Cloudflare Worker production deployment | Existing hosted project, `public` / `ticketing_private` | Production Auth and email settings |
+| Environment    | Website                                                | Database                                                | Auth / email                                                                            |
+| -------------- | ------------------------------------------------------ | ------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Local          | `http://127.0.0.1:8788`                                | Local Docker Supabase, `public`                         | Separate local Auth users; OTP and ticket messages captured at `http://127.0.0.1:54324` |
+| Hosted staging | `dev` branch, Cloudflare Worker Preview                | Existing hosted project, `staging` / `staging_private`  | Shared hosted Auth; separate staging staff roles and allowlisted ticket emails          |
+| Production     | `main` branch, Cloudflare Worker production deployment | Existing hosted project, `public` / `ticketing_private` | Production Auth and email settings                                                      |
 
 The Free-plan workaround separates staging **tables, RPC implementations, orders, roles, discounts, QR signing and payment events**. Hosted Auth users, Auth email configuration, database extensions, service-role credentials, and project quotas are shared. Staging is logical isolation within one project, not a separate security boundary against someone holding that project's service key. Production data is not copied into staging. Only local testing is a completely independent Supabase stack.
 
@@ -246,15 +254,15 @@ A webhook signing secret belongs to its receiving endpoint or Stripe CLI listene
 
 All routes below require a verified event admin. Check-in staff and ordinary holders cannot mutate the catalog.
 
-| Endpoint | Body / behavior |
-|---|---|
-| `GET /api/admin/ticket-types` | Includes deleted types, paid-order counts and price history. |
-| `POST /api/admin/ticket-types` | `{code,label,requestKey:<UUID>}`; creates a paused public type. |
-| `PATCH /api/admin/ticket-types/:id` | `{label,publicPurchase:<boolean>}`; enabling requires a current price. |
-| `POST /api/admin/ticket-types/:id/prices` | `{amount:<whole yen>,requestKey:<UUID>}`; creates a new Stripe price and makes it current. Retry identical requests with the same key. |
-| `DELETE /api/admin/ticket-types/:id` | Deletes only types with no successful purchase history. |
-| `POST /api/admin/ticket-types/:id/restore` | Restores a deleted type paused; set its price before enabling it. |
-| `PATCH /api/admin/ticket-sales` | `{enabled:<boolean>}`; controls event-wide sales. |
+| Endpoint                                   | Body / behavior                                                                                                                        |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/admin/ticket-types`              | Includes deleted types, paid-order counts and price history.                                                                           |
+| `POST /api/admin/ticket-types`             | `{code,label,requestKey:<UUID>}`; creates a paused public type.                                                                        |
+| `PATCH /api/admin/ticket-types/:id`        | `{label,publicPurchase:<boolean>}`; enabling requires a current price.                                                                 |
+| `POST /api/admin/ticket-types/:id/prices`  | `{amount:<whole yen>,requestKey:<UUID>}`; creates a new Stripe price and makes it current. Retry identical requests with the same key. |
+| `DELETE /api/admin/ticket-types/:id`       | Deletes only types with no successful purchase history.                                                                                |
+| `POST /api/admin/ticket-types/:id/restore` | Restores a deleted type paused; set its price before enabling it.                                                                      |
+| `PATCH /api/admin/ticket-sales`            | `{enabled:<boolean>}`; controls event-wide sales.                                                                                      |
 
 New public types appear automatically in checkout, registration filters and discount associations. They collect the standard attendee information; Startup/Investor retain their specialized questionnaires. Concurrent price edits use a database comparison to prevent one admin silently overwriting another. A conflicting request must be restarted with a fresh UUID. Stripe products are separated by environment and ticket type, preserving discount eligibility even when local/staging share a sandbox. Products and historical prices remain active at Stripe so pending sessions keep working; the database controls public availability.
 

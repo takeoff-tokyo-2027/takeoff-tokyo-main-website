@@ -1,36 +1,69 @@
 /* One text size throughout the site, including the UI library's literal sizes. */
-h1 { font-size: var(--site-font-size-body); line-height: var(--site-line-height-title); }
-h2 { font-size: var(--site-font-size-body); line-height: var(--site-line-height-compact); }
-h3 { font-size: var(--site-font-size-body); line-height: var(--site-line-height-compact); }
-h4 { font-size: var(--site-font-size-body); line-height: var(--site-line-height-compact); }
-h5 { font-size: var(--site-font-size-body); line-height: var(--site-line-height-compact); }
-h6 { font-size: var(--site-font-size-body); line-height: var(--site-line-height-compact); }
-small { font-size: var(--site-font-size-body); }
-
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+small,
 .takeoff-input-field,
 .takeoff-button,
+.takeoff-button--size-sm,
 .takeoff-button--size-md,
 .takeoff-button--size-lg,
 .takeoff-card__body,
-.takeoff-modal-dialog__body {
+.takeoff-card__title,
+.takeoff-modal-dialog__body,
+.takeoff-modal-dialog__title,
+.takeoff-modal-dialog__close-button,
+.takeoff-form-label,
+.takeoff-form-error-message,
+.takeoff-form-helper-text,
+.takeoff-toast-notification__content,
+.takeoff-toast-notification__icon,
+.takeoff-toast-notification__close-button,
+.takeoff-badge,
+.takeoff-badge--size-sm,
+.takeoff-badge--size-md {
   font-size: var(--site-font-size-body);
-  line-height: var(--site-line-height-body);
 }
 
+h1,
+.takeoff-badge,
+.takeoff-badge--size-sm,
+.takeoff-badge--size-md {
+  line-height: var(--site-line-height-title);
+}
+
+h2,
+h3,
+h4,
+h5,
+h6,
+.takeoff-card__title,
+.takeoff-modal-dialog__title {
+  line-height: var(--site-line-height-compact);
+}
+
+.takeoff-input-field,
+.takeoff-button,
 .takeoff-button--size-sm,
+.takeoff-button--size-md,
+.takeoff-button--size-lg,
+.takeoff-card__body,
+.takeoff-modal-dialog__body,
 .takeoff-form-label,
 .takeoff-form-error-message,
 .takeoff-form-helper-text,
 .takeoff-toast-notification__content {
-  font-size: var(--site-font-size-body);
   line-height: var(--site-line-height-body);
 }
 
-.takeoff-card__title { font-size: var(--site-font-size-body); line-height: var(--site-line-height-compact); }
-.takeoff-modal-dialog__title { font-size: var(--site-font-size-body); line-height: var(--site-line-height-compact); }
-.takeoff-modal-dialog__close-button { font-size: var(--site-font-size-body); }
-.takeoff-toast-notification__icon { font-size: var(--site-font-size-body); }
-.takeoff-toast-notification__close-button { font-size: var(--site-font-size-body); }
-.takeoff-badge,
-.takeoff-badge--size-sm,
-.takeoff-badge--size-md { font-size: var(--site-font-size-body); line-height: var(--site-line-height-title); }
+.section-title {
+  margin: 0 0 var(--site-heading-gap);
+  font-family: var(--takeoff-font-family-display-title);
+  font-weight: var(--takeoff-font-weight-medium);
+  line-height: var(--site-line-height-title);
+  text-align: center;
+  text-transform: uppercase;
+}

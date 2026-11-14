@@ -45,7 +45,6 @@
   margin: 0;
   margin-block-start: calc(var(--hero-spacing) * -0.5);
   padding-inline: var(--site-gutter);
-  font-size: var(--site-font-size-body);
   font-weight: var(--takeoff-font-weight-regular);
   line-height: var(--site-line-height-title);
 }

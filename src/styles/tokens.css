@@ -33,7 +33,7 @@
   --site-tracking-tight: -0.02em;
   --site-tracking-label: 0.04em;
   --site-tracking-eyebrow: 0.08em;
-  --site-tracking-code: .25em;
+  --site-tracking-code: 0.25em;
 
   /* Alpha variants derive from the shared theme colors. */
   --site-border-soft: color-mix(in srgb, var(--takeoff-text) 8%, transparent);

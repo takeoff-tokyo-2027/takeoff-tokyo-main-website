@@ -1,6 +1,6 @@
-import "../styles/navbar.css";
-import React, { useState } from "react";
-import { TakeoffTokyoLogo, TakeoffButton } from "@takeoff-tokyo/ui";
+import '../styles/navbar.css';
+import React, { useState } from 'react';
+import { TakeoffTokyoLogo, TakeoffButton } from '@takeoff-tokyo/ui';
 
 export const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -9,7 +9,7 @@ export const Navbar: React.FC = () => {
     setMobileMenuOpen(false);
     const element = document.getElementById(id);
     if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+      element.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -18,37 +18,21 @@ export const Navbar: React.FC = () => {
       <div className="site-container site-navbar__container">
         {/* Brand & Edition Badge */}
         <div className="site-navbar__brand">
-          <a
-            href="/"
-            className="site-navbar__home"
-            aria-label="Takeoff Tokyo Home"
-          >
+          <a href="/" className="site-navbar__home" aria-label="Takeoff Tokyo Home">
             <TakeoffTokyoLogo height={30} />
           </a>
-          <span className="site-navbar__edition">
-            2027
-          </span>
+          <span className="site-navbar__edition">2027</span>
         </div>
 
         {/* Desktop Navigation */}
         <nav className="site-navbar__desktop desktop-nav">
-          <button
-            onClick={() => scrollToSection("about")}
-            className="site-navbar__link"
-          >
+          <button onClick={() => scrollToSection('about')} className="site-navbar__link">
             About
           </button>
-          <button
-            onClick={() => scrollToSection("newsletter")}
-            className="site-navbar__link"
-          >
+          <button onClick={() => scrollToSection('newsletter')} className="site-navbar__link">
             Newsletter
           </button>
-          <TakeoffButton
-            variant="cyan"
-            size="sm"
-            onClick={() => scrollToSection("newsletter")}
-          >
+          <TakeoffButton variant="cyan" size="sm" onClick={() => scrollToSection('newsletter')}>
             Join Newsletter
           </TakeoffButton>
         </nav>
@@ -60,7 +44,7 @@ export const Navbar: React.FC = () => {
             className="site-navbar__toggle-button"
             aria-label="Toggle Navigation Menu"
           >
-            {mobileMenuOpen ? "✕" : "☰"}
+            {mobileMenuOpen ? '✕' : '☰'}
           </button>
         </div>
       </div>
@@ -68,14 +52,11 @@ export const Navbar: React.FC = () => {
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="site-navbar__drawer">
-          <button
-            onClick={() => scrollToSection("about")}
-            className="site-navbar__drawer-link"
-          >
+          <button onClick={() => scrollToSection('about')} className="site-navbar__drawer-link">
             About
           </button>
           <button
-            onClick={() => scrollToSection("newsletter")}
+            onClick={() => scrollToSection('newsletter')}
             className="site-navbar__drawer-link"
           >
             Newsletter
@@ -84,7 +65,7 @@ export const Navbar: React.FC = () => {
             variant="cyan"
             size="md"
             isBlock
-            onClick={() => scrollToSection("newsletter")}
+            onClick={() => scrollToSection('newsletter')}
           >
             Join Newsletter
           </TakeoffButton>

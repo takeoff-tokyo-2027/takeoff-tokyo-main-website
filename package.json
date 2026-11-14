@@ -5,6 +5,10 @@
   "type": "module",
   "packageManager": "bun@1.4.2",
   "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "npm run lint -- --fix",
+    "format": "prettier . --write --ignore-path .gitignore --ignore-path .prettierignore",
+    "format:check": "prettier . --check --ignore-path .gitignore --ignore-path .prettierignore",
     "dev": "node scripts/local-testing.mjs serve",
     "build": "npm run check:styles && tsc && vite build",
     "preview": "vite preview",
@@ -43,13 +47,18 @@
     "stripe": "^23.1.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9",
     "@playwright/test": "^1.65.0",
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9",
+    "globals": "^17.14.0",
+    "prettier": "^3.10.1",
     "supabase": "3.1.0",
     "typescript": "^5.7.2",
+    "typescript-eslint": "^8.72.2",
     "vite": "^6.0.3",
     "wrangler": "^4.160.1"
   }

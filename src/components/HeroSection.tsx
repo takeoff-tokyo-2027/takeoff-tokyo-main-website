@@ -1,12 +1,12 @@
-import "../styles/intro-hero.css";
-import React from "react";
-import { TakeoffButton } from "@takeoff-tokyo/ui";
+import '../styles/intro-hero.css';
+import React from 'react';
+import { TakeoffButton } from '@takeoff-tokyo/ui';
 
 export const HeroSection: React.FC = () => {
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
     if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
+      el.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -29,24 +29,16 @@ export const HeroSection: React.FC = () => {
 
         {/* Subtitle */}
         <p className="intro-hero__copy">
-          Since 2023, Takeoff Tokyo brings together the best founders,
-          investors, and companies on the planet. Returning in 2027.
+          Since 2023, Takeoff Tokyo brings together the best founders, investors, and companies on
+          the planet. Returning in 2027.
         </p>
 
         {/* Action Buttons */}
         <div className="intro-hero__actions">
-          <TakeoffButton
-            variant="cyan"
-            size="md"
-            onClick={() => scrollTo("newsletter")}
-          >
+          <TakeoffButton variant="cyan" size="md" onClick={() => scrollTo('newsletter')}>
             Join the Newsletter
           </TakeoffButton>
-          <TakeoffButton
-            variant="ghost"
-            size="md"
-            onClick={() => scrollTo("about")}
-          >
+          <TakeoffButton variant="ghost" size="md" onClick={() => scrollTo('about')}>
             Learn More
           </TakeoffButton>
         </div>

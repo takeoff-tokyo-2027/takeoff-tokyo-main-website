@@ -29,33 +29,58 @@ export function PanelShell({ children, me, email, signOut }: PanelShellProps) {
     ];
   }
 
-  return <div className="panel-shell">
-    <a className="skip-link" href="#panel-main">Skip to content</a>
-    <header className={`panel-header${isAdmin ? ' panel-header--admin' : ''}`}>
-      <div className="site-container panel-header-inner">
-        <Link to="/" aria-label="Home"><TakeoffTokyoLogo height={30} /></Link>
-        <div className="ticket-actions">
-          {(isAdmin || me?.staffRole) && (
-            <Link className="panel-switch" to={isAdmin ? '/account/tickets' : '/admin'}>
-              {isAdmin ? 'Account' : 'Admin'}
-            </Link>
-          )}
-          {email && <>
-            <span className="panel-email">{email}</span>
-            <TakeoffButton variant="ghost" size="sm" onClick={signOut}>Sign out</TakeoffButton>
-          </>}
-        </div>
-      </div>
-    </header>
-    <div className={isAdmin && me ? 'site-container panel-layout panel-layout--admin' : 'site-container panel-layout'}>
-      {me && (
-        <nav className="panel-nav" aria-label={isAdmin ? 'Admin navigation' : 'Account navigation'}>
-          <div className="panel-nav-links">
-            {sections.map(([to, label]) => <NavLink key={to} to={to}>{label}</NavLink>)}
+  return (
+    <div className="panel-shell">
+      <a className="skip-link" href="#panel-main">
+        Skip to content
+      </a>
+      <header className={`panel-header${isAdmin ? ' panel-header--admin' : ''}`}>
+        <div className="site-container panel-header-inner">
+          <Link to="/" aria-label="Home">
+            <TakeoffTokyoLogo height={30} />
+          </Link>
+          <div className="ticket-actions">
+            {(isAdmin || me?.staffRole) && (
+              <Link className="panel-switch" to={isAdmin ? '/account/tickets' : '/admin'}>
+                {isAdmin ? 'Account' : 'Admin'}
+              </Link>
+            )}
+            {email && (
+              <>
+                <span className="panel-email">{email}</span>
+                <TakeoffButton variant="ghost" size="sm" onClick={signOut}>
+                  Sign out
+                </TakeoffButton>
+              </>
+            )}
           </div>
-        </nav>
-      )}
-      <main id="panel-main" className="panel-main" tabIndex={-1}>{children}</main>
+        </div>
+      </header>
+      <div
+        className={
+          isAdmin && me
+            ? 'site-container panel-layout panel-layout--admin'
+            : 'site-container panel-layout'
+        }
+      >
+        {me && (
+          <nav
+            className="panel-nav"
+            aria-label={isAdmin ? 'Admin navigation' : 'Account navigation'}
+          >
+            <div className="panel-nav-links">
+              {sections.map(([to, label]) => (
+                <NavLink key={to} to={to}>
+                  {label}
+                </NavLink>
+              ))}
+            </div>
+          </nav>
+        )}
+        <main id="panel-main" className="panel-main" tabIndex={-1}>
+          {children}
+        </main>
+      </div>
     </div>
-  </div>;
+  );
 }

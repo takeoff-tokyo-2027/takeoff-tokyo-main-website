@@ -1,0 +1,9 @@
+# Binary assets and generated artwork.
+assets/
+public/
+
+# Historical migrations and Auth email markup are maintained separately.
+supabase/
+
+# Bun maintains its own lockfile format.
+bun.lock

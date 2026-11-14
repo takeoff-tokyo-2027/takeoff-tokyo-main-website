@@ -3,15 +3,6 @@
   border-top: 1px solid var(--site-border-soft);
 }
 
-.about-title {
-  margin: 0 0 var(--site-heading-gap);
-  text-align: center;
-  font-family: var(--takeoff-font-family-display-title);
-  font-size: var(--site-font-size-body);
-  line-height: var(--site-line-height-title);
-  text-transform: uppercase;
-}
-
 .about-content {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -21,7 +12,6 @@
 
 .about-copy {
   color: var(--takeoff-color-text-secondary);
-  font-size: var(--site-font-size-body);
   line-height: var(--site-line-height-copy);
 }
 
