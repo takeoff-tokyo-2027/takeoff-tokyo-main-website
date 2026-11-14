@@ -21,6 +21,8 @@ test(
       },
     );
     assert.deepEqual(rawConfig.triggers.crons, ['* * * * *']);
+    assert.equal(rawConfig.previews.observability.enabled, true);
+    assert.equal(rawConfig.previews.observability.logs.persist, true);
     let delivered = null,
       finished = false;
     const mailbox = createServer(async (request, response) => {

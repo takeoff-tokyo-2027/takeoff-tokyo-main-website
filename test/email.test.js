@@ -101,3 +101,102 @@ test('accepted-transfer emails lead both parties to the account sign-in chooser'
   assert.match(content.textContent, /View account: https:\/\/event\.example\/account\n/);
   assert.doesNotMatch(content.htmlContent, /href="https:\/\/event\.example\/account\/tickets"/);
 });
+
+const staging = {
+  APP_ENV: 'staging',
+  SUPABASE_DB_SCHEMA: 'staging',
+  SUPABASE_URL: 'https://example.supabase.co',
+  SUPABASE_SERVICE_ROLE_KEY: 'test-service',
+  SITE_URL: site,
+  BREVO_API_KEY: 'test-brevo',
+  BREVO_SENDER_EMAIL: 'sender@example.test',
+  STAGING_EMAIL_ALLOWLIST: ' Holder@Example.test ',
+};
+
+test('missing staging email settings identify the binding before claiming any jobs', async (t) => {
+  const original = globalThis.fetch;
+  t.after(() => {
+    globalThis.fetch = original;
+  });
+  globalThis.fetch = async () => assert.fail('Misconfigured email delivery claimed jobs');
+  for (const key of ['BREVO_API_KEY', 'BREVO_SENDER_EMAIL', 'STAGING_EMAIL_ALLOWLIST']) {
+    await assert.rejects(() => drainOutbox({ ...staging, [key]: '' }), {
+      message:
+        key === 'STAGING_EMAIL_ALLOWLIST'
+          ? 'Configure STAGING_EMAIL_ALLOWLIST before running staging emails'
+          : `Missing ticket email runtime setting: ${key}`,
+    });
+  }
+});
+
+test('staging records safe Brevo diagnostics while preserving retries and recipient restrictions', async (t) => {
+  const originalFetch = globalThis.fetch;
+  const originalError = console.error;
+  t.after(() => {
+    globalThis.fetch = originalFetch;
+    console.error = originalError;
+  });
+  for (const [recipient, response, expected] of [
+    [
+      'holder@example.test',
+      Response.json(
+        {
+          code: 'unauthorized',
+          message: 'Unrecognised IP address 192.0.2.1 for holder@example.test',
+        },
+        { status: 401 },
+      ),
+      'Brevo HTTP 401 (unauthorized): IP restriction',
+    ],
+    [
+      'holder@example.test',
+      Response.json({ code: 'unauthorized', message: 'Key not found' }, { status: 401 }),
+      'Brevo HTTP 401 (unauthorized): invalid API key',
+    ],
+    [
+      'holder@example.test',
+      Response.json(
+        { code: 'invalid_parameter', message: 'Sender holder@example.test is not verified' },
+        { status: 400 },
+      ),
+      'Brevo HTTP 400 (invalid_parameter)',
+    ],
+    [
+      'holder@example.test',
+      new Response('<html>Private gateway error</html>', { status: 502 }),
+      'Brevo HTTP 502',
+    ],
+    ['holder@example.test', Response.json({}, { status: 201 }), null],
+    ['outsider@example.test', null, 'Recipient is not in staging allowlist'],
+  ]) {
+    const logs = [];
+    console.error = (...args) => logs.push(args);
+    let finished = false,
+      sent = false;
+    globalThis.fetch = async (url, options) => {
+      if (String(url).endsWith('/rpc/claim_emails')) {
+        assert.equal(options.headers['Content-Profile'], 'staging');
+        return Response.json([
+          { id: 'mail-1', lease_token: 'lease-1', template: 'crew', recipient, payload: {} },
+        ]);
+      }
+      if (String(url).endsWith('/rpc/finish_email')) {
+        assert.deepEqual(JSON.parse(options.body), {
+          p_id: 'mail-1',
+          p_lease: 'lease-1',
+          p_error: expected,
+        });
+        finished = true;
+        return new Response(null, { status: 204 });
+      }
+      assert.equal(String(url), 'https://api.brevo.com/v3/smtp/email');
+      assert.ok(response, 'Non-allowlisted recipient reached Brevo');
+      sent = true;
+      return response;
+    };
+    await drainOutbox(staging);
+    assert.equal(finished, true);
+    assert.equal(sent, response !== null);
+    assert.deepEqual(logs, expected ? [['Email delivery retry', 'mail-1', expected]] : []);
+  }
+});

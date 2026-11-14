@@ -24,3 +24,11 @@ SUPABASE_DB_SCHEMA = "public"
 APP_ENV = "staging"
 SITE_URL = "https://dev-takeoff-tokyo-main-website.ankhasgreens.workers.dev"
 SUPABASE_DB_SCHEMA = "staging"
+
+[previews.observability]
+enabled = true
+
+[previews.observability.logs]
+enabled = true
+invocation_logs = true
+persist = true

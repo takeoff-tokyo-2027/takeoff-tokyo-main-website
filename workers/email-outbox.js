@@ -1,6 +1,6 @@
 import { renderEmail } from './email-template.js';
 import { environment, loopback, databaseSchema } from '../functions/lib/environment.js';
-import { rpc, required, origin } from '../functions/lib/core.js';
+import { rpc, origin } from '../functions/lib/core.js';
 
 export function emailContent(row, site) {
   const links = {
@@ -52,26 +52,30 @@ export function emailContent(row, site) {
 export async function drainOutbox(env) {
   // Validate configuration before leasing any jobs.
   databaseSchema(env);
-  const local = environment(env) === 'local';
+  const name = environment(env);
+  const local = name === 'local';
+  console.info('Ticket email delivery started', name);
   if (local && !loopback(env.LOCAL_EMAIL_URL))
     throw new Error('Local email requires a loopback inbox');
   if (!local) {
-    required(env, 'BREVO_API_KEY');
-    required(env, 'BREVO_SENDER_EMAIL');
+    for (const key of ['BREVO_API_KEY', 'BREVO_SENDER_EMAIL']) {
+      if (!env[key]) throw new Error(`Missing ticket email runtime setting: ${key}`);
+    }
   }
   const allowed = (env.STAGING_EMAIL_ALLOWLIST || '')
     .split(',')
     .map((v) => v.trim().toLowerCase())
     .filter(Boolean);
-  if (environment(env) === 'staging' && !allowed.length)
+  if (name === 'staging' && !allowed.length)
     throw new Error('Configure STAGING_EMAIL_ALLOWLIST before running staging emails');
   const site = origin(env);
   const rows = await rpc(env, 'claim_emails');
+  console.info('Ticket email jobs claimed', name, rows.length);
   await Promise.all(
     rows.map(async (row) => {
       let error = null;
       try {
-        if (environment(env) === 'staging' && !allowed.includes(row.recipient.toLowerCase()))
+        if (name === 'staging' && !allowed.includes(row.recipient.toLowerCase()))
           throw new Error('Recipient is not in staging allowlist');
         const content = emailContent(row, site);
         const response = await fetch(
@@ -96,7 +100,24 @@ export async function drainOutbox(env) {
             ),
           },
         );
-        if (!response.ok) throw new Error(`Brevo HTTP ${response.status}`);
+        if (!response.ok) {
+          let reason = '';
+          try {
+            const data = await response.json();
+            // Never persist the raw provider message: it can contain recipient details.
+            if (typeof data?.code === 'string' && /^[a-z_]{1,80}$/.test(data.code))
+              reason = ` (${data.code})`;
+            if (typeof data?.message === 'string') {
+              if (/ip address/i.test(data.message)) reason += ': IP restriction';
+              else if (/key.*not found|invalid.*key/i.test(data.message))
+                reason += ': invalid API key';
+            }
+          } catch {
+            // Gateways may return HTML or an empty body.
+          }
+          throw new Error(`Brevo HTTP ${response.status}${reason}`);
+        }
+        console.info('Ticket email accepted by provider', row.id);
       } catch (e) {
         error = e.message;
       }
