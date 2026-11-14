@@ -37,6 +37,13 @@
 
 .newsletter-field {
   flex: 1 1 260px;
+  min-width: 0;
+}
+
+.newsletter-submit {
+  /* Keep the input and button in place when the button content changes. */
+  flex: 0 0 9rem;
+  max-width: 100%;
 }
 
 .newsletter-form .newsletter-input {

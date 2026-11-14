@@ -55,8 +55,8 @@ export const NewsletterSection: React.FC = () => {
               className="newsletter-input"
             />
           </div>
-          <div>
-            <TakeoffButton type="submit" variant="cyan" size="md" isLoading={isSubmitting}>
+          <div className="newsletter-submit">
+            <TakeoffButton type="submit" variant="cyan" size="md" isBlock isLoading={isSubmitting}>
               Subscribe
             </TakeoffButton>
           </div>
