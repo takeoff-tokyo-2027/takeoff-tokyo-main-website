@@ -64,8 +64,16 @@ summary::marker { color: var(--takeoff-color-text-dim); }
 .ticket-modal .takeoff-modal-dialog__header { padding: 16px var(--dialog-pad); flex: none; gap: 16px; }
 .ticket-modal .takeoff-modal-dialog__close-button { width: 44px; height: 44px; flex: none; }
 .ticket-modal .takeoff-modal-dialog__body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: var(--dialog-pad); }
+/* Keep focused fields above the sticky payment footer while typing. */
+.ticket-modal .takeoff-modal-dialog__body { scroll-padding-block: 16px 180px; }
 .ticket-modal .ticket-panel { width: 100%; }
 .checkout-form { gap: 20px; }
+.checkout-step { margin: 0; font-size: 1.125rem; }
+.checkout-step:focus { outline: none; }
+.checkout-summary { padding: 12px 16px; border: 1px solid var(--takeoff-border-default); border-radius: var(--takeoff-radius-small); }
+.checkout-summary p { margin: 0 0 8px; }
+.checkout-navigation { display: flex; gap: 12px; }
+.checkout-navigation > button { flex: 1; }
 .checkout-discount { border-top: 1px solid var(--takeoff-border-default); padding-top: 16px; }
 .checkout-discount > summary { font-size: .9375rem; min-height: 32px; }
 .checkout-discount > .ticket-form { padding-top: 16px; gap: 12px; }

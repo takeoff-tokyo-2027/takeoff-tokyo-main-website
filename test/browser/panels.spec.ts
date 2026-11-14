@@ -3,6 +3,7 @@ const id='00000000-0000-4000-8000-000000000011';
 async function setup(page:import('@playwright/test').Page,role:string|null='admin',signedIn=true){
  if(signedIn)await page.addInitScript(()=>{const user={id:'00000000-0000-4000-8000-000000000001',email:'buyer@example.com',aud:'authenticated',role:'authenticated',email_confirmed_at:new Date().toISOString(),app_metadata:{provider:'email'},user_metadata:{},created_at:new Date().toISOString()};const token=btoa(JSON.stringify({alg:'HS256',typ:'JWT'}))+'.'+btoa(JSON.stringify({sub:user.id,exp:Math.floor(Date.now()/1000)+3600,aud:'authenticated',role:'authenticated'}))+'.test';localStorage.setItem('sb-example-auth-token',JSON.stringify({access_token:token,refresh_token:'test',expires_at:Math.floor(Date.now()/1000)+3600,expires_in:3600,token_type:'bearer',user}));});
  await page.route('https://example.supabase.co/**',r=>r.fulfill({json:{}}));
+ await page.route('https://www.youtube.com/**',r=>r.fulfill({body:'Event video'}));
  await page.route('**/api/**',r=>{
  const p=new URL(r.request().url()).pathname;
  const ticket={id,type:'startup',label:'Startup',status:'active',attendee:{full_name:'Test holder',email:'buyer@example.com'},used:true,transferable:false,transfer:null};
@@ -18,7 +19,7 @@ for(const width of [320,768,1024,1440])test(`admin layout fits ${width}px`,async
 test('check-in role lands on scanner and legacy tickets link redirects',async({page})=>{await setup(page,'checkin');await page.goto('/admin');await expect(page).toHaveURL(/\/admin\/check-in$/);await expect(page.getByRole('button',{name:'Scan next ticket'})).toBeVisible();await page.goto('/?tickets=1');await expect(page).toHaveURL(/\/account\/tickets$/);});
 test('revocation dialog supports escape and restores focus',async({page})=>{await setup(page);await page.goto(`/admin/registrations/${id}`);const trigger=page.getByRole('button',{name:'Revoke ticket',exact:true});await trigger.click();await expect(page.getByRole('dialog')).toBeVisible();await page.keyboard.press('Escape');await expect(page.getByRole('dialog')).toBeHidden();await expect(trigger).toBeFocused();});
 
-test('Register opens checkout without requesting OTP',async({page})=>{
+test('Ticket cards open checkout without requesting OTP',async({page})=>{
  await setup(page,null,false);
  const authRequests:string[]=[];page.on('request',request=>{if(request.url().includes('supabase.co/auth/'))authRequests.push(request.url());});
  await page.route('**/api/create-checkout',async route=>{
@@ -27,10 +28,10 @@ test('Register opens checkout without requesting OTP',async({page})=>{
   await route.fulfill({json:{url:'https://checkout.stripe.test/session'}});
  });
  await page.route('https://checkout.stripe.test/**',route=>route.fulfill({body:'Secure checkout'}));
- await page.goto('/');await page.getByRole('button',{name:'REGISTER'}).click();
- const modal=page.getByRole('dialog');await expect(modal.getByRole('button',{name:'Continue to secure payment'})).toBeVisible();
+ await page.goto('/');await page.getByRole('button',{name:'Get startup ticket',exact:true}).click();
+ const modal=page.getByRole('dialog');await expect(modal.getByRole('button',{name:'Continue',exact:true})).toBeVisible();
  await expect(modal.getByRole('button',{name:'Email me a code'})).toHaveCount(0);
- await modal.getByRole('spinbutton',{name:'Startup quantity'}).fill('2');
+ await modal.getByRole('spinbutton',{name:'Startup quantity'}).fill('2');await modal.getByRole('button',{name:'Continue',exact:true}).click();
  await modal.getByLabel('Buyer’s full name').fill('Guest buyer');await modal.getByLabel('Buyer’s email').fill('guest@example.com');
  await modal.getByRole('button',{name:'Continue to secure payment'}).click();await expect(page).toHaveURL('https://checkout.stripe.test/session');
  expect(authRequests).toEqual([]);
@@ -51,7 +52,7 @@ test('canceled payment restores registration without OTP',async({page})=>{
  await setup(page,null,false);
  await page.addInitScript(()=>sessionStorage.setItem('takeoff-checkout-request',JSON.stringify({key:'00000000-0000-4000-8000-000000000099',selection:JSON.stringify({name:'Guest buyer',email:'guest@example.com',qty:{startup:2},discountCode:''})})));
  await page.goto('/?checkout=canceled');const modal=page.getByRole('dialog');await expect(modal).toBeVisible();
- await expect(modal.getByLabel('Buyer’s full name')).toHaveValue('Guest buyer');await expect(modal.getByLabel('Buyer’s email')).toHaveValue('guest@example.com');await expect(modal.getByRole('spinbutton',{name:'Startup quantity'})).toHaveValue('2');
+ await expect(modal.getByLabel('Buyer’s full name')).toHaveValue('Guest buyer');await expect(modal.getByLabel('Buyer’s email')).toHaveValue('guest@example.com');await expect(modal.getByRole('region',{name:'Selected tickets'})).toContainText('Startup × 2');
  await expect(modal.getByRole('button',{name:'Email me a code'})).toHaveCount(0);await expect(modal.getByRole('status')).toContainText('canceled');
 });
 
@@ -132,7 +133,7 @@ test('canceled checkout restores additional public ticket types',async({page})=>
  await setup(page,null,false);
  await page.route('**/api/ticket-types',route=>route.fulfill({json:{salesEnabled:true,types:[{code:'general',label:'General admission',amount:4500,currency:'JPY'}],currencies:[],sectors:[]}}));
  await page.addInitScript(()=>sessionStorage.setItem('takeoff-checkout-request',JSON.stringify({key:'00000000-0000-4000-8000-000000000099',selection:JSON.stringify({name:'Guest buyer',email:'guest@example.com',qty:{general:2},discountCode:''})})));
- await page.goto('/?checkout=canceled');const modal=page.getByRole('dialog');await expect(modal.getByRole('spinbutton',{name:'General admission quantity'})).toHaveValue('2');await expect(modal.getByLabel('Buyer’s email')).toHaveValue('guest@example.com');
+ await page.goto('/?checkout=canceled');const modal=page.getByRole('dialog');await expect(modal.getByRole('region',{name:'Selected tickets'})).toContainText('General admission × 2');await expect(modal.getByLabel('Buyer’s email')).toHaveValue('guest@example.com');
 });
 test('discount eligibility includes additional public ticket types',async({page})=>{
  await setup(page);
@@ -175,8 +176,9 @@ test('collapsed optional questionnaire preserves saved answers',async({page})=>{
 test('compact mobile checkout keeps discounts and payment usable',async({page})=>{
  await page.setViewportSize({width:320,height:568});await setup(page,null,false);
  await page.route('**/api/discounts/quote',route=>route.fulfill({json:{code:'LAUNCH20',percentage:20,subtotal:3000,discountAmount:600,total:2400}}));
- await page.goto('/');await page.getByRole('button',{name:'REGISTER'}).click();const dialog=page.getByRole('dialog');
- await dialog.getByRole('spinbutton',{name:'Startup quantity'}).fill('1');await dialog.getByLabel('Buyer’s full name').fill('Guest');await dialog.getByLabel('Buyer’s email').fill('guest@example.com');
+ await page.goto('/');await page.getByRole('button',{name:'Get startup ticket',exact:true}).click();const dialog=page.getByRole('dialog');
+ await dialog.getByRole('spinbutton',{name:'Startup quantity'}).fill('1');await dialog.getByRole('button',{name:'Continue',exact:true}).click();await dialog.getByLabel('Buyer’s full name').fill('Guest');await page.keyboard.press('Tab');await expect(dialog.getByLabel('Buyer’s email')).toBeFocused();await dialog.getByLabel('Buyer’s email').fill('guest@example.com');
+ expect(await dialog.getByLabel('Buyer’s email').evaluate(input=>input.getBoundingClientRect().bottom<=input.closest('.checkout-form')!.querySelector('.checkout-footer')!.getBoundingClientRect().top)).toBe(true);
  await dialog.locator('summary').filter({hasText:'Discount code'}).click();await dialog.getByLabel('Discount code',{exact:true}).fill('LAUNCH20');await dialog.getByRole('button',{name:'Apply code',exact:true}).click();
  await expect(dialog.locator('.checkout-footer')).toContainText('¥2,400');const payment=dialog.getByRole('button',{name:'Continue to secure payment'});await expect(payment).toBeEnabled();await expect(payment).toBeInViewport();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
@@ -197,11 +199,11 @@ for(const terminal of ['expired','failed'])test(`${terminal} payment can restart
 test('pending checkout errors retain the request key across retries and reloads',async({page})=>{
  await setup(page,null,false);const keys:string[]=[];
  await page.route('**/api/create-checkout',async route=>{keys.push(route.request().postDataJSON().requestKey);return route.fulfill({status:503,json:{error:'Please try again'}});});
- await page.goto('/');await page.getByRole('button',{name:'REGISTER'}).click();let dialog=page.getByRole('dialog');
- await dialog.getByRole('spinbutton',{name:'Startup quantity'}).fill('1');await dialog.getByLabel('Buyer’s full name').fill('Guest');await dialog.getByLabel('Buyer’s email').fill('guest@example.com');
+ await page.goto('/');await page.getByRole('button',{name:'Get startup ticket',exact:true}).click();let dialog=page.getByRole('dialog');
+ await dialog.getByRole('spinbutton',{name:'Startup quantity'}).fill('1');await dialog.getByRole('button',{name:'Continue',exact:true}).click();await dialog.getByLabel('Buyer’s full name').fill('Guest');await dialog.getByLabel('Buyer’s email').fill('guest@example.com');
  await dialog.getByRole('button',{name:'Continue to secure payment'}).click();await expect(dialog.getByRole('alert')).toContainText('Please try again');await expect(dialog.getByRole('button',{name:'Restart payment'})).toHaveCount(0);
  await dialog.getByRole('button',{name:'Continue to secure payment'}).click();await expect.poll(()=>keys.length).toBe(2);
- await page.reload();await page.getByRole('button',{name:'REGISTER'}).click();dialog=page.getByRole('dialog');await dialog.getByRole('button',{name:'Continue to secure payment'}).click();await expect.poll(()=>keys.length).toBe(3);
+ await page.reload();await page.getByRole('button',{name:'Get startup ticket',exact:true}).click();dialog=page.getByRole('dialog');await dialog.getByRole('button',{name:'Continue',exact:true}).click();await dialog.getByRole('button',{name:'Continue to secure payment'}).click();await expect.poll(()=>keys.length).toBe(3);
  expect(new Set(keys).size).toBe(1);
 });
 
@@ -238,15 +240,15 @@ for(const state of ['expired','canceled'])test(`signed-out ${state} invitation c
  await page.goto(`/#transfer=${token}`);await expect(page).toHaveURL(/\/account\/transfer$/);
  await page.getByLabel('Email',{exact:true}).fill('invited@example.com');await page.getByRole('button',{name:'Email me a code'}).click();await expect(page.getByRole('alert')).toContainText('Invitation unavailable');
  await page.getByRole('button',{name:'Dismiss invitation',exact:true}).click();await expect(page).toHaveURL('/');expect(await page.evaluate(()=>localStorage.getItem('takeoff-ticket-transfer'))).toBeNull();
- await page.getByRole('button',{name:'REGISTER'}).click();await expect(page.getByRole('dialog')).toBeVisible();await page.reload();await expect(page).toHaveURL('/');
+ await page.getByRole('button',{name:'Get startup ticket',exact:true}).click();await expect(page.getByRole('dialog')).toBeVisible();await page.reload();await expect(page).toHaveURL('/');
 });
 
 test('a stored invitation does not redirect home or block registration',async({page})=>{
  await setup(page,null,false);const token=crypto.randomUUID()+crypto.randomUUID();
  await page.addInitScript(token=>localStorage.setItem('takeoff-ticket-transfer',token),token);
- await page.goto('/');await expect(page.getByRole('button',{name:'REGISTER'})).toBeVisible();await expect(page).toHaveURL('/');
+ await page.goto('/');await expect(page.getByRole('button',{name:'Get startup ticket',exact:true})).toBeVisible();await expect(page).toHaveURL('/');
  await page.goto('/account/transfer');await expect(page.getByRole('button',{name:'Dismiss invitation'})).toBeVisible();await page.getByRole('link',{name:'Home',exact:true}).click();await expect(page).toHaveURL('/');
- expect(await page.evaluate(()=>localStorage.getItem('takeoff-ticket-transfer'))).toBe(token);await page.getByRole('button',{name:'REGISTER'}).click();await expect(page.getByRole('dialog')).toBeVisible();
+ expect(await page.evaluate(()=>localStorage.getItem('takeoff-ticket-transfer'))).toBe(token);await page.getByRole('button',{name:'Get startup ticket',exact:true}).click();await expect(page.getByRole('dialog')).toBeVisible();
 });
 
 test('viewing paid order A preserves pending checkout B and resumes its original key',async({page})=>{
@@ -256,7 +258,7 @@ test('viewing paid order A preserves pending checkout B and resumes its original
  let resumed=false;await page.route('**/api/create-checkout',route=>{const data=route.request().postDataJSON();expect(data.requestKey).toBe(keyB);expect(data.qty).toEqual({startup:2});resumed=true;return route.fulfill({json:{orderId:orderB,url:'https://checkout.stripe.test/pending-b'}});});
  await page.route('https://checkout.stripe.test/**',route=>route.fulfill({body:'Secure checkout'}));
  await page.goto(`/account/orders/${id}`);await expect(page.getByText(/Earlier purchase/)).toBeVisible();expect(await page.evaluate(()=>JSON.parse(sessionStorage.getItem('takeoff-checkout-request')!).key)).toBe(keyB);
- await page.getByRole('link',{name:'Home',exact:true}).click();await page.getByRole('button',{name:'REGISTER'}).click();await page.getByRole('button',{name:'Continue to secure payment'}).click();await expect(page).toHaveURL('https://checkout.stripe.test/pending-b');expect(resumed).toBe(true);
+ await page.getByRole('link',{name:'Home',exact:true}).click();await page.getByRole('button',{name:'Get startup ticket',exact:true}).click();await page.getByRole('button',{name:'Continue',exact:true}).click();await page.getByRole('button',{name:'Continue to secure payment'}).click();await expect(page).toHaveURL('https://checkout.stripe.test/pending-b');expect(resumed).toBe(true);
 });
 
 for(const match of ['request key','stored order ID'])test(`paid confirmation clears only a checkout matching its ${match}`,async({page})=>{
@@ -291,15 +293,15 @@ test('unavailable restored quantities can be removed before a fresh purchase',as
  await page.addInitScript(key=>sessionStorage.setItem('takeoff-checkout-request',JSON.stringify({key,selection:JSON.stringify({name:'Guest',email:'guest@example.com',qty:{retired:100},discountCode:''})})),oldKey);
  await page.route('**/api/create-checkout',route=>{const data=route.request().postDataJSON();expect(data.qty).toEqual({startup:1});expect(data.requestKey).not.toBe(oldKey);submitted=true;return route.fulfill({json:{orderId:id,url:'https://checkout.stripe.test/available'}});});
  await page.route('https://checkout.stripe.test/**',route=>route.fulfill({body:'Secure checkout'}));await page.goto('/?checkout=canceled');const dialog=page.getByRole('dialog');await expect(dialog.getByRole('button',{name:'Resume payment'})).toBeEnabled();
- await dialog.getByRole('spinbutton',{name:'Startup quantity'}).fill('1');await expect(dialog.getByRole('button',{name:'Continue to secure payment'})).toBeDisabled();
- await dialog.getByRole('button',{name:'Remove Retired',exact:true}).click();await expect(dialog.getByRole('button',{name:'Continue to secure payment'})).toBeEnabled();expect(submitted).toBe(false);expect(await page.evaluate(()=>JSON.parse(sessionStorage.getItem('takeoff-checkout-request')!).key)).toBe(oldKey);
- await dialog.getByRole('button',{name:'Continue to secure payment'}).click();await expect(page).toHaveURL('https://checkout.stripe.test/available');expect(submitted).toBe(true);
+ await dialog.getByRole('button',{name:'Edit tickets',exact:true}).click();await dialog.getByRole('spinbutton',{name:'Startup quantity'}).fill('1');await expect(dialog.getByRole('button',{name:'Continue',exact:true})).toBeDisabled();
+ await dialog.getByRole('button',{name:'Remove Retired',exact:true}).click();await expect(dialog.getByRole('button',{name:'Continue',exact:true})).toBeEnabled();expect(submitted).toBe(false);expect(await page.evaluate(()=>JSON.parse(sessionStorage.getItem('takeoff-checkout-request')!).key)).toBe(oldKey);
+ await dialog.getByRole('button',{name:'Continue',exact:true}).click();await dialog.getByRole('button',{name:'Continue to secure payment'}).click();await expect(page).toHaveURL('https://checkout.stripe.test/available');expect(submitted).toBe(true);
 });
 
 for(const width of [320,1280])test(`SOH quantity controls update selection and total at ${width}px`,async({page})=>{
  await page.setViewportSize({width,height:900});await setup(page,null,false);
  let checkouts=0;await page.route('**/api/create-checkout',route=>{checkouts++;return route.fulfill({json:{}});});
- await page.goto('/');await page.getByRole('button',{name:'REGISTER'}).click();
+ await page.goto('/');await page.getByRole('button',{name:'Get startup ticket',exact:true}).click();
  const modal=page.getByRole('dialog'),quantity=modal.getByRole('spinbutton',{name:'Startup quantity'});
  const decrease=modal.getByRole('button',{name:'Decrease Startup quantity'}),increase=modal.getByRole('button',{name:'Increase Startup quantity'});
  await expect(quantity).toHaveValue('0');await expect(decrease).toBeDisabled();
@@ -312,7 +314,7 @@ for(const width of [320,1280])test(`SOH quantity controls update selection and t
  expect(await quantity.evaluate(el=>{const input=el as HTMLInputElement,context=document.createElement('canvas').getContext('2d')!;context.font=getComputedStyle(input).font;return input.clientWidth>=context.measureText(input.value).width;})).toBe(true);
  await decrease.click();await expect(quantity).toHaveValue('99');
  await quantity.fill('0');await expect(decrease).toBeDisabled();await expect(modal.locator('.ticket-quantity')).not.toHaveClass(/ticket-quantity--picked/);
- await expect(modal.getByRole('button',{name:'Continue to secure payment'})).toBeDisabled();
+ await expect(modal.getByRole('button',{name:'Continue',exact:true})).toBeDisabled();
  expect(checkouts).toBe(0);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();
  const fits=await modal.locator('.number-input').evaluate(el=>{const input=el.querySelector('input')!.getBoundingClientRect();const buttons=el.querySelectorAll('button');return input.left>=buttons[0].getBoundingClientRect().right&&input.right<=buttons[1].getBoundingClientRect().left;});expect(fits).toBe(true);
 });
