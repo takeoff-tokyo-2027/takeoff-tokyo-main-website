@@ -2,17 +2,36 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { onRequest } from '../functions/api/[[path]].js';
 
-const env = { SITE_URL: 'https://site.example', SUPABASE_URL: 'https://example.supabase.co', SUPABASE_SERVICE_ROLE_KEY: 'test-service-key' };
-const request = data => new Request(`${env.SITE_URL}/api/auth/request-code`, { method: 'POST', headers: { Origin: env.SITE_URL, 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+const env = {
+  SITE_URL: 'https://site.example',
+  SUPABASE_URL: 'https://example.supabase.co',
+  SUPABASE_SERVICE_ROLE_KEY: 'test-service-key',
+};
+const request = (data) =>
+  new Request(`${env.SITE_URL}/api/auth/request-code`, {
+    method: 'POST',
+    headers: { Origin: env.SITE_URL, 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
 
-test('unrecognized emails and database failures never issue an OTP', async t => {
-  const original = globalThis.fetch; t.after(() => { globalThis.fetch = original; });
-  for (const databaseResponse of [Response.json(false), Response.json({ code: 'P0001', message: 'Lookup failed' }, { status: 409 })]) {
+test('unrecognized emails and database failures never issue an OTP', async (t) => {
+  const original = globalThis.fetch;
+  t.after(() => {
+    globalThis.fetch = original;
+  });
+  for (const databaseResponse of [
+    Response.json(false),
+    Response.json({ code: 'P0001', message: 'Lookup failed' }, { status: 409 }),
+  ]) {
     let calls = 0;
     globalThis.fetch = async (url, options) => {
       calls++;
       assert.equal(String(url), `${env.SUPABASE_URL}/rest/v1/rpc/request_sign_in`);
-      assert.deepEqual(JSON.parse(options.body), { p_email: 'unknown@example.com', p_purpose: 'tickets', p_token_hash: null });
+      assert.deepEqual(JSON.parse(options.body), {
+        p_email: 'unknown@example.com',
+        p_purpose: 'tickets',
+        p_token_hash: null,
+      });
       return databaseResponse;
     };
     const response = await onRequest({ request: request({ email: 'Unknown@Example.com' }), env });
@@ -22,8 +41,11 @@ test('unrecognized emails and database failures never issue an OTP', async t => 
   }
 });
 
-test('eligible emails receive a code only after the database check', async t => {
-  const original = globalThis.fetch; t.after(() => { globalThis.fetch = original; });
+test('eligible emails receive a code only after the database check', async (t) => {
+  const original = globalThis.fetch;
+  t.after(() => {
+    globalThis.fetch = original;
+  });
   const calls = [];
   globalThis.fetch = async (url, options) => {
     calls.push(String(url));
@@ -35,32 +57,129 @@ test('eligible emails receive a code only after the database check', async t => 
     assert.deepEqual(JSON.parse(options.body), { email: 'holder@example.com', create_user: true });
     return Response.json({});
   };
-  const response = await onRequest({ request: request({ email: ' Holder@Example.com ', purpose: 'tickets' }), env });
-  assert.equal(response.status, 200); assert.deepEqual(await response.json(), { sent: true }); assert.equal(calls.length, 2);
+  const response = await onRequest({
+    request: request({ email: ' Holder@Example.com ', purpose: 'tickets' }),
+    env,
+  });
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { sent: true });
+  assert.equal(calls.length, 2);
 });
 
-test('transfer sign-in requires a valid token and passes only its hash to the database', async t => {
-  const original = globalThis.fetch; t.after(() => { globalThis.fetch = original; });
+test('transfer sign-in requires a valid token and passes only its hash to the database', async (t) => {
+  const original = globalThis.fetch;
+  t.after(() => {
+    globalThis.fetch = original;
+  });
   let calls = 0;
   globalThis.fetch = async (url, options) => {
     calls++;
     assert.equal(String(url), `${env.SUPABASE_URL}/rest/v1/rpc/request_sign_in`);
-    const data = JSON.parse(options.body); assert.equal(data.p_purpose, 'transfer'); assert.match(data.p_token_hash, /^[a-f0-9]{64}$/);
+    const data = JSON.parse(options.body);
+    assert.equal(data.p_purpose, 'transfer');
+    assert.match(data.p_token_hash, /^[a-f0-9]{64}$/);
     return Response.json(false);
   };
-  assert.equal((await onRequest({ request: request({ email: 'invitee@example.com', purpose: 'transfer' }), env })).status, 400);
+  assert.equal(
+    (
+      await onRequest({
+        request: request({ email: 'invitee@example.com', purpose: 'transfer' }),
+        env,
+      })
+    ).status,
+    400,
+  );
   assert.equal(calls, 0);
   const token = crypto.randomUUID() + crypto.randomUUID();
-  assert.equal((await onRequest({ request: request({ email: 'invitee@example.com', purpose: 'transfer', transferToken: token }), env })).status, 403);
+  assert.equal(
+    (
+      await onRequest({
+        request: request({
+          email: 'invitee@example.com',
+          purpose: 'transfer',
+          transferToken: token,
+        }),
+        env,
+      })
+    ).status,
+    403,
+  );
   assert.equal(calls, 1);
 });
 
-test('OTP errors preserve rate limits and cross-origin requests cannot send codes', async t => {
-  const original = globalThis.fetch; t.after(() => { globalThis.fetch = original; });
+test('OTP errors preserve rate limits and cross-origin requests cannot send codes', async (t) => {
+  const original = globalThis.fetch;
+  t.after(() => {
+    globalThis.fetch = original;
+  });
   let calls = 0;
-  globalThis.fetch = async url => { calls++; return String(url).endsWith('/request_sign_in') ? Response.json(true) : Response.json({}, { status: 429 }); };
+  globalThis.fetch = async (url) => {
+    calls++;
+    return String(url).endsWith('/request_sign_in')
+      ? Response.json(true)
+      : Response.json({}, { status: 429 });
+  };
   const response = await onRequest({ request: request({ email: 'holder@example.com' }), env });
-  assert.equal(response.status, 429); assert.equal(calls, 2);
-  const foreign = request({ email: 'holder@example.com' }); foreign.headers.set('Origin', 'https://evil.example');
-  assert.equal((await onRequest({ request: foreign, env })).status, 403); assert.equal(calls, 2);
+  assert.equal(response.status, 429);
+  assert.equal(calls, 2);
+  const foreign = request({ email: 'holder@example.com' });
+  foreign.headers.set('Origin', 'https://evil.example');
+  assert.equal((await onRequest({ request: foreign, env })).status, 403);
+  assert.equal(calls, 2);
+});
+
+test('missing or invalid SITE_URL fails before sending codes with a configuration error', async (t) => {
+  const original = globalThis.fetch;
+  t.after(() => {
+    globalThis.fetch = original;
+  });
+  globalThis.fetch = async () => assert.fail('Misconfigured origin reached Supabase');
+  for (const SITE_URL of [undefined, '', 'dev.example', 'null', 'ftp://dev.example']) {
+    const response = await onRequest({
+      request: request({ email: 'holder@example.com' }),
+      env: { ...env, SITE_URL },
+    });
+    assert.equal(response.status, 503, `SITE_URL=${SITE_URL}`);
+    assert.deepEqual(await response.json(), { error: 'Ticketing service is not configured' });
+  }
+});
+
+test('staging Worker origin permits checked sign-in and rejects foreign origins', async (t) => {
+  const original = globalThis.fetch;
+  t.after(() => {
+    globalThis.fetch = original;
+  });
+  const staging = {
+    ...env,
+    APP_ENV: 'staging',
+    SUPABASE_DB_SCHEMA: 'staging',
+    SITE_URL: 'https://dev-takeoff-tokyo-main-website.ankhasgreens.workers.dev',
+  };
+  let calls = 0;
+  globalThis.fetch = async (url, options) => {
+    calls++;
+    if (String(url).endsWith('/request_sign_in')) {
+      assert.equal(options.headers['Content-Profile'], 'staging');
+      return Response.json(true);
+    }
+    assert.equal(String(url), `${staging.SUPABASE_URL}/auth/v1/otp`);
+    return Response.json({});
+  };
+  for (const origin of [
+    'https://evil.example',
+    `${staging.SITE_URL}.evil.example`,
+    'https://another-worker.ankhasgreens.workers.dev',
+    staging.SITE_URL,
+  ]) {
+    const response = await onRequest({
+      request: new Request(`${staging.SITE_URL}/api/auth/request-code`, {
+        method: 'POST',
+        headers: { Origin: origin, 'X-Takeoff-Environment': 'staging' },
+        body: JSON.stringify({ email: 'holder@example.com' }),
+      }),
+      env: staging,
+    });
+    assert.equal(response.status, origin === staging.SITE_URL ? 200 : 403);
+    assert.equal(calls, origin === staging.SITE_URL ? 2 : 0);
+  }
 });

@@ -89,3 +89,5 @@ test-results/
 # Isolated local app build and runtime secrets
 .local-testing/
 dist-staging/
+WORKFLOW.md
+*.WORKFLOW.md

@@ -22,4 +22,13 @@ SUPABASE_DB_SCHEMA = "public"
 # Set SITE_URL and credentials separately in Production and Previews Base secrets.
 [previews.vars]
 APP_ENV = "staging"
+SITE_URL = "https://dev-takeoff-tokyo-main-website.ankhasgreens.workers.dev"
 SUPABASE_DB_SCHEMA = "staging"
+
+[previews.observability]
+enabled = true
+
+[previews.observability.logs]
+enabled = true
+invocation_logs = true
+persist = true

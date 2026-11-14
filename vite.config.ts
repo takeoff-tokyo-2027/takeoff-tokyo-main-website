@@ -1,10 +1,11 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { uiFonts } from './scripts/ui-fonts.mjs';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [uiFonts(), react()],
   server: {
     port: 3000,
-    host: true
-  }
+    host: true,
+  },
 });

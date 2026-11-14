@@ -8,11 +8,18 @@ declare global {
 }
 
 export function initializeAnalytics() {
-  if (!import.meta.env.PROD || !['takeoff-tokyo.com', 'www.takeoff-tokyo.com'].includes(window.location.hostname)) return;
+  if (
+    !import.meta.env.PROD ||
+    !['takeoff-tokyo.com', 'www.takeoff-tokyo.com'].includes(window.location.hostname)
+  )
+    return;
   if (document.getElementById('google-analytics')) return;
 
   window.dataLayer = window.dataLayer || [];
-  window.gtag = function () { window.dataLayer!.push(arguments); };
+  window.gtag = function () {
+    // eslint-disable-next-line prefer-rest-params -- Google tag queues the arguments object.
+    window.dataLayer!.push(arguments);
+  };
   window.gtag('js', new Date());
   window.gtag('config', measurementId);
 

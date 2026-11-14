@@ -2,8 +2,13 @@ import { onRequest } from '../functions/api/[[path]].js';
 import { drainOutbox } from './email-outbox.js';
 
 function queuesEmail(method, path) {
-  return method === 'POST' && (path === '/api/stripe-webhook' || path === '/api/admin/crew-tickets' ||
-    /^\/api\/tickets\/[^/]+\/transfers$/.test(path) || /^\/api\/transfers\/[^/]+\/accept$/.test(path));
+  return (
+    method === 'POST' &&
+    (path === '/api/stripe-webhook' ||
+      path === '/api/admin/crew-tickets' ||
+      /^\/api\/tickets\/[^/]+\/transfers$/.test(path) ||
+      /^\/api\/transfers\/[^/]+\/accept$/.test(path))
+  );
 }
 
 export default {

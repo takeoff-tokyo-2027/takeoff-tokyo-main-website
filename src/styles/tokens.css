@@ -1,0 +1,66 @@
+/* Site tokens extend @takeoff-tokyo/ui; load after the library and before site styles.
+   Keep shared visual values here. Component geometry and media queries stay local. */
+:root {
+  /* Spacing: a 4px scale expressed in rem, with half steps for compact controls. */
+  --site-space-0-5: 0.125rem;
+  --site-space-1: 0.25rem;
+  --site-space-1-5: 0.375rem;
+  --site-space-2: 0.5rem;
+  --site-space-2-5: 0.625rem;
+  --site-space-3: 0.75rem;
+  --site-space-4: 1rem;
+  --site-space-5: 1.25rem;
+  --site-space-6: 1.5rem;
+  --site-space-7: 1.75rem;
+  --site-space-8: 2rem;
+  --site-space-10: 2.5rem;
+  --site-space-12: 3rem;
+  --site-space-16: 4rem;
+  --site-checkout-footer-clearance: 11.25rem;
+  --site-space-20: 5rem;
+
+  /* Shared sizes for body/UI text and public section titles.
+     The root stays at 100% to respect the browser's text-size preference. */
+  --site-font-size-body: 1rem;
+  --site-font-size-section-title: 2rem;
+  --site-line-height-title: 1.2;
+  --site-line-height-compact: 1.25;
+  --site-line-height-body: 1.5;
+  --site-line-height-copy: 1.65;
+  --site-font-weight-semibold: 600;
+  --site-tracking-eyebrow: 0.08em;
+  --site-tracking-code: 0.25em;
+
+  /* Alpha variants derive from the shared theme colors. */
+  --site-border-soft: color-mix(in srgb, var(--takeoff-text) 8%, transparent);
+  --site-border-strong: color-mix(in srgb, var(--takeoff-text) 12%, transparent);
+  --site-surface-control: var(--site-border-soft);
+  --site-surface-control-hover: color-mix(in srgb, var(--takeoff-text) 15%, transparent);
+  --site-text-copy: color-mix(in srgb, var(--takeoff-text) 65%, transparent);
+  --site-shadow-logo-hover: 0 4px 14px
+    color-mix(in srgb, var(--takeoff-accent-cyan-base) 25%, transparent);
+
+  /* Shared controls, containers, focus treatment, and layers. */
+  --site-radius-control: 8px;
+  --site-radius-quantity: 10px;
+  --site-control-height: 44px;
+  --site-input-height: 46px;
+  /* Outer container widths include gutters; nested regions add no extra gutter. */
+  --site-width-auth: 32rem;
+  --site-width-form: 45rem;
+  --site-width-reading: 52rem;
+  --site-width-page: 75rem;
+  --site-width-wide: 90rem;
+  --site-measure-copy: 65ch;
+  --site-gutter: clamp(var(--site-space-4), 3vw, var(--site-space-8));
+  --site-section-spacing: clamp(var(--site-space-12), 6vw, var(--site-space-20));
+  --site-heading-gap: var(--site-space-8);
+  --site-grid-gap: var(--site-space-6);
+  --site-card-padding: clamp(var(--site-space-5), 2vw, var(--site-space-6));
+  --site-sidebar-width: 12rem;
+  --site-qr-size: 320px;
+  --site-focus-width: 2px;
+  --site-layer-sticky: 1;
+  --site-layer-banner: 1200;
+  --site-layer-skip-link: 2000;
+}
