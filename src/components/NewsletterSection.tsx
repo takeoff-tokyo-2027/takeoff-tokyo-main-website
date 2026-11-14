@@ -13,18 +13,21 @@ export function NewsletterSection() {
           applications for Takeoff Tokyo 2027.
         </p>
 
-        <iframe
-          className="newsletter-embed"
-          src="https://takeofftokyo.substack.com/embed"
-          title="Subscribe to Takeoff Tokyo on Substack"
-          width="480"
-          height="320"
-          loading="lazy"
-        />
+        <div className="newsletter-card">
+          {/* Substack controls the embed's theme; the surrounding card uses our site tokens. */}
+          <iframe
+            className="newsletter-embed"
+            src="https://takeofftokyo.substack.com/embed"
+            title="Subscribe to Takeoff Tokyo on Substack"
+            width="480"
+            height="320"
+            loading="lazy"
+          />
 
-        <p className="newsletter-note">
-          Subscriptions are managed on Substack. Unsubscribe at any time.
-        </p>
+          <p className="newsletter-note">
+            Subscriptions are managed by Substack. Unsubscribe at any time.
+          </p>
+        </div>
       </div>
     </section>
   );

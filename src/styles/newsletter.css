@@ -18,16 +18,27 @@
   font-weight: var(--takeoff-font-weight-light);
 }
 
+.newsletter-card {
+  width: 100%;
+  max-width: var(--site-width-auth);
+  margin-inline: auto;
+  overflow: hidden;
+  border: 1px solid var(--takeoff-border-default);
+  border-radius: var(--takeoff-radius-medium);
+  background: var(--takeoff-color-bg-surface-card);
+}
+
 .newsletter-embed {
   display: block;
   width: 100%;
-  margin-inline: auto;
   border: 0;
 }
 
 .newsletter-note {
   font-family: var(--takeoff-font-family-body);
-  color: var(--site-text-note);
-  margin-top: var(--site-space-5);
+  color: var(--takeoff-color-text-secondary);
+  margin: 0;
+  padding: var(--site-space-5) var(--site-card-padding);
+  border-top: 1px solid var(--takeoff-border-default);
   font-weight: var(--takeoff-font-weight-light);
 }
