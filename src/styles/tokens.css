@@ -49,6 +49,8 @@
   --site-text-drawer: color-mix(in srgb, var(--takeoff-text) 80%, transparent);
   --site-text-eyebrow: color-mix(in srgb, var(--takeoff-text) 50%, transparent);
   --site-text-note: color-mix(in srgb, var(--takeoff-text) 40%, transparent);
+  --site-shadow-logo-hover: 0 4px 14px
+    color-mix(in srgb, var(--takeoff-accent-cyan-base) 25%, transparent);
 
   /* Shared controls, containers, focus treatment, and layers. */
   --site-radius-xs: 4px;
