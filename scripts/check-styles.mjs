@@ -31,7 +31,7 @@ const spacingProperties = /^(?:(?:margin|padding|scroll-margin|scroll-padding)(?
 const fontRoles = new Set(['body']);
 const breakpoints = new Set(['480', '640', '768', '1024', '1200']);
 
-for (const { file, css } of styles) {
+function checkVariables(file, css) {
   for (const match of css.matchAll(/var\(\s*(--[\w-]+)/g)) {
     if (!definitions.has(match[1])) report(file, `undefined variable ${match[1]}`);
   }
@@ -40,14 +40,21 @@ for (const { file, css } of styles) {
       report(file, `font-size-${role}: use the single shared font size in ${tokenFile}`);
     }
   }
-  if (file === tokenFile) continue;
+}
+
+function checkBreakpoints(file, css) {
   for (const [, condition] of css.matchAll(/@media\s*([^{}]+)/g)) {
-    if (/width/.test(condition) && !/^\(width (?:<|>=) (\d+)px\)$/.test(condition.trim())) {
+    if (!/width/.test(condition)) continue;
+    const breakpoint = condition.trim().match(/^\(width (?:<|>=) (\d+)px\)$/);
+    if (!breakpoint) {
       report(file, 'use a documented width range breakpoint');
-    } else if (/width/.test(condition) && !breakpoints.has(condition.match(/(\d+)px/)[1])) {
+    } else if (!breakpoints.has(breakpoint[1])) {
       report(file, 'use a shared breakpoint: 480, 640, 768, 1024, or 1200px');
     }
   }
+}
+
+function checkDeclarations(file, css) {
   // Site styles use plain CSS declarations, including declarations inside media rules.
   for (const [, property, value] of css.matchAll(/([\w-]+)\s*:\s*([^;{}]+)(?=[;}])/g)) {
     if (rawColor.test(value)) report(file, `${property}: put literal colors in ${tokenFile}`);
@@ -75,7 +82,7 @@ for (const { file, css } of styles) {
   }
 }
 
-for (const file of files.filter(file => /\.[jt]sx?$/.test(file))) {
+function checkComponentStyles(file) {
   const source = ts.createSourceFile(file, readFileSync(file, 'utf8'), ts.ScriptTarget.Latest, true);
   function visit(node) {
     const inline = ts.isJsxAttribute(node) && node.name.getText(source) === 'style';
@@ -92,6 +99,17 @@ for (const file of files.filter(file => /\.[jt]sx?$/.test(file))) {
     ts.forEachChild(node, visit);
   }
   visit(source);
+}
+
+for (const { file, css } of styles) {
+  checkVariables(file, css);
+  if (file === tokenFile) continue;
+  checkBreakpoints(file, css);
+  checkDeclarations(file, css);
+}
+
+for (const file of files.filter(file => /\.[jt]sx?$/.test(file))) {
+  checkComponentStyles(file);
 }
 
 if (errors.length) {
