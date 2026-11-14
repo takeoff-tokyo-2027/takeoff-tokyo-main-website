@@ -2,6 +2,9 @@ import { expect, test } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
   await page.route('https://www.youtube.com/**', (route) => route.fulfill({ body: '' }));
+  await page.route('https://takeofftokyo.substack.com/embed', (route) =>
+    route.fulfill({ body: '' }),
+  );
   await page.route('https://example.supabase.co/**', (route) => route.fulfill({ json: {} }));
   await page.route('**/api/ticket-types', (route) =>
     route.fulfill({
@@ -26,13 +29,15 @@ for (const width of [320, 640, 768, 1440]) {
     const styles = await page.evaluate(() => {
       const about = document.querySelector('#about')!;
       const tickets = document.querySelector('#tickets')!;
+      const newsletter = document.querySelector('#newsletter')!;
       const containers = [
         about.querySelector('.site-container')!,
         tickets.querySelector('.site-container')!,
         document.querySelector('.footer-inner')!,
       ];
       return {
-        titles: [about.querySelector('h2')!, tickets.querySelector('h2')!].map((el) => {
+        titles: [about, tickets, newsletter].map((section) => {
+          const el = section.querySelector('h2')!;
           const style = getComputedStyle(el);
           return {
             fontSize: style.fontSize,
@@ -45,7 +50,7 @@ for (const width of [320, 640, 768, 1440]) {
             marginBottom: style.marginBottom,
           };
         }),
-        sectionPadding: [about, tickets].map((el) => getComputedStyle(el).paddingTop),
+        sectionPadding: [about, tickets, newsletter].map((el) => getComputedStyle(el).paddingTop),
         edges: containers.map((el) => {
           const rect = el.getBoundingClientRect(),
             style = getComputedStyle(el);
@@ -61,11 +66,17 @@ for (const width of [320, 640, 768, 1440]) {
       };
     });
     expect(styles.titles[0]).toEqual(styles.titles[1]);
+    expect(styles.titles[0]).toEqual(styles.titles[2]);
     expect(styles.sectionPadding[0]).toBe(styles.sectionPadding[1]);
+    expect(styles.sectionPadding[0]).toBe(styles.sectionPadding[2]);
     expect(styles.edges[0]).toEqual(styles.edges[1]);
     expect(styles.edges[0]).toEqual(styles.edges[2]);
     expect(styles.columns).toBe(width < 640 ? 1 : 2);
     expect(styles.overflowing).toBe(false);
+    const embed = await page.locator('.newsletter-embed').boundingBox();
+    expect(embed).not.toBeNull();
+    expect(embed!.x).toBeGreaterThanOrEqual(0);
+    expect(embed!.x + embed!.width).toBeLessThanOrEqual(width);
     const textSizes = await page.evaluate(() => [
       ...new Set(
         [...document.querySelectorAll('body *')]
@@ -101,6 +112,10 @@ for (const fontPercent of [100, 200]) {
       `${(16 * fontPercent) / 100}px`,
     );
     await expect(page.getByRole('heading', { name: 'Tickets', exact: true })).toHaveCSS(
+      'font-size',
+      `${(16 * fontPercent) / 100}px`,
+    );
+    await expect(page.getByRole('heading', { name: 'Newsletter', exact: true })).toHaveCSS(
       'font-size',
       `${(16 * fontPercent) / 100}px`,
     );
