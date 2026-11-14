@@ -1,22 +1,33 @@
 import React from "react";
-import backgroundVideo from "../assets/videos/takeoff-tokyo-background-video.mp4";
-
 import { useLocation } from "react-router-dom";
+import backgroundVideo from "../assets/videos/takeoff-tokyo-background-video.mp4";
+import { Footer } from "./components/Footer";
+import { LegalPage, legalRoutes } from "./pages/LegalPage";
 import { Ticketing } from "./ticketing/Ticketing";
 
-export const App: React.FC = () => { const portal=useLocation().pathname!=="/"; return portal ? <Ticketing/> : (
-  <main className="hero-page">
-    <section className="hero-content" aria-labelledby="hero-title">
-      <div className="hero-media">
-        <video className="hero-video" autoPlay muted loop playsInline aria-hidden="true">
-          <source src={backgroundVideo} type="video/mp4" />
-        </video>
-      </div>
-      <h1 id="hero-title" className="visually-hidden">Takeoff Tokyo</h1>
-      <p className="event-date">March 17–18, 2027</p>
-      <Ticketing />
-    </section>
-  </main>
- ); };
+export const App: React.FC = () => {
+  const { pathname } = useLocation();
+  const legalDocument = legalRoutes[pathname.replace(/\/$/, "") as keyof typeof legalRoutes];
+
+  return (
+    <div className="site-layout">
+      {legalDocument ? <LegalPage document={legalDocument} /> : pathname !== "/" ? <Ticketing /> : (
+        <main className="hero-page">
+          <section className="hero-content" aria-labelledby="hero-title">
+            <div className="hero-media">
+              <video className="hero-video" autoPlay muted loop playsInline aria-hidden="true">
+                <source src={backgroundVideo} type="video/mp4" />
+              </video>
+            </div>
+            <h1 id="hero-title" className="visually-hidden">Takeoff Tokyo</h1>
+            <p className="event-date">March 17–18, 2027</p>
+            <Ticketing />
+          </section>
+        </main>
+      )}
+      <Footer />
+    </div>
+  );
+};
 
 export default App;
