@@ -1,19 +1,15 @@
 .newsletter-section {
+  min-width: 0;
   padding-block: var(--site-section-spacing);
   position: relative;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .newsletter-container {
   --site-container-width: var(--site-width-form);
   text-align: center;
-}
-
-.newsletter-eyebrow {
-  font-family: var(--takeoff-font-family-body);
-  letter-spacing: var(--site-tracking-eyebrow);
-  text-transform: uppercase;
-  color: var(--site-text-eyebrow);
-  margin: 0 0 var(--site-space-4) 0;
+  overflow-wrap: anywhere;
 }
 
 .newsletter-copy {
@@ -25,9 +21,8 @@
   font-weight: var(--takeoff-font-weight-light);
 }
 
-.newsletter-form {
-  display: flex;
-  gap: var(--site-space-3);
+.newsletter-card {
+  width: 100%;
   max-width: var(--site-width-auth);
   margin: 0 auto;
   flex-direction: row;
@@ -46,17 +41,17 @@
   max-width: 100%;
 }
 
-.newsletter-form .newsletter-input {
+.newsletter-embed {
+  display: block;
   width: 100%;
-  box-sizing: border-box;
-  background-color: var(--site-surface-input-overlay);
-  border: 1px solid var(--site-border-strong);
-  color: var(--takeoff-color-text-primary-white);
+  border: 0;
 }
 
 .newsletter-note {
   font-family: var(--takeoff-font-family-body);
-  color: var(--site-text-note);
-  margin-top: var(--site-space-5);
+  color: var(--takeoff-color-text-secondary);
+  margin: 0;
+  padding: var(--site-space-5) var(--site-card-padding);
+  border-top: 1px solid var(--takeoff-border-default);
   font-weight: var(--takeoff-font-weight-light);
 }

@@ -5,6 +5,8 @@ import { Footer } from './components/Footer';
 import { LegalPage, legalRoutes } from './pages/LegalPage';
 import { Ticketing } from './ticketing/Ticketing';
 import { AboutSection } from './components/AboutSection';
+import { WhosJoiningSection } from './components/WhosJoiningSection';
+import { NewsletterSection } from './components/NewsletterSection';
 
 export const App: React.FC = () => {
   const { pathname } = useLocation();
@@ -42,6 +44,8 @@ export const App: React.FC = () => {
           </section>
           <AboutSection />
           <Ticketing />
+          <WhosJoiningSection />
+          <NewsletterSection />
         </main>
       )}
       <Footer />
