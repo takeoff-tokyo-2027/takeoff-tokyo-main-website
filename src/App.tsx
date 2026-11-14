@@ -28,6 +28,7 @@ export const App: React.FC = () => {
             </div>
           </section>
           <AboutSection />
+          <Ticketing />
         </main>
       )}
       <Footer />
