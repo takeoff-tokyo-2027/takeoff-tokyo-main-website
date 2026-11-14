@@ -1,12 +1,15 @@
 .newsletter-section {
   min-width: 0;
   padding-block: var(--site-section-spacing);
+  position: relative;
+  min-width: 0;
   overflow-wrap: anywhere;
 }
 
 .newsletter-container {
   --site-container-width: var(--site-width-form);
   text-align: center;
+  overflow-wrap: anywhere;
 }
 
 .newsletter-copy {
@@ -21,6 +24,15 @@
 .newsletter-card {
   width: 100%;
   max-width: var(--site-width-auth);
+  margin: 0 auto;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.newsletter-field {
+  flex: 1 1 260px;
+  min-width: 0;
   margin-inline: auto;
   overflow: hidden;
   border: 1px solid var(--takeoff-border-default);

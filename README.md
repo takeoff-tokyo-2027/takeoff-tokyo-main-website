@@ -6,6 +6,8 @@ The shared footer links to the public Terms & Conditions (`/terms-conditions`), 
 
 Google Analytics uses measurement ID `G-Y1MHMNDZHN` through `src/analytics.ts`, enabled for production builds on `takeoff-tokyo.com` and `www.takeoff-tokyo.com`. In the GA4 web stream, enable Enhanced measurement → Page views → Page changes based on browser history events to measure React navigation. The app uses Google's automatic pageviews; it does not send additional manual pageviews. See [Google's SPA measurement guide](https://developers.google.com/analytics/devguides/collection/ga4/single-page-applications).
 
+The homepage's Who's Joining section is maintained in `src/components/WhosJoiningSection.tsx`. Edit the `startups` and `investors` lists there (`name`, `fullName`, `url`, `src`), with logo files in `public/images/logos/startups/` and `public/images/logos/investors/`. The initial lists contain only the first desktop row (seven companies each) from Super Office Hours 2026 for later editing.
+
 ## Code quality
 
 Run `bun run lint` for ESLint checks and `bun run format:check` to check Prettier formatting. Use `bun run lint:fix` for automatic lint fixes and `bun run format` to format the code. The commands also work through `npm run`.
