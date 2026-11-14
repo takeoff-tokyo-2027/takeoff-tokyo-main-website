@@ -4,6 +4,7 @@ import backgroundVideo from "../assets/videos/takeoff-tokyo-background-video.mp4
 import { Footer } from "./components/Footer";
 import { LegalPage, legalRoutes } from "./pages/LegalPage";
 import { Ticketing } from "./ticketing/Ticketing";
+import { AboutSection } from "./components/AboutSection";
 
 export const App: React.FC = () => {
   const { pathname } = useLocation();
