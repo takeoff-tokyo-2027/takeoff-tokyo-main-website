@@ -10,9 +10,11 @@
 
 .about-title {
   margin: 0 0 clamp(24px, 4vw, 48px);
+  text-align: center;
   font-family: var(--takeoff-font-family-display-title);
   font-size: clamp(32px, 4vw, 48px);
   line-height: 1.15;
+  text-transform: uppercase;
 }
 
 .about-content {
