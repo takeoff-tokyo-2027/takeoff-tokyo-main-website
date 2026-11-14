@@ -3,6 +3,7 @@ import backgroundVideo from "../assets/videos/takeoff-tokyo-background-video.mp4
 
 import { useLocation } from "react-router-dom";
 import { Ticketing } from "./ticketing/Ticketing";
+import { AboutSection } from "./components/AboutSection";
 
 export const App: React.FC = () => { const portal=useLocation().pathname!=="/"; return portal ? <Ticketing/> : (
   <main className="hero-page">
@@ -16,6 +17,7 @@ export const App: React.FC = () => { const portal=useLocation().pathname!=="/"; 
       <p className="event-date">March 17–18, 2027</p>
       <Ticketing />
     </section>
+    <AboutSection />
   </main>
  ); };
 
