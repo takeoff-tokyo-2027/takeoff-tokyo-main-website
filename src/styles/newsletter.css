@@ -1,11 +1,13 @@
 .newsletter-section {
   padding-block: var(--site-section-spacing);
   position: relative;
+  min-width: 0;
 }
 
 .newsletter-container {
   --site-container-width: var(--site-width-form);
   text-align: center;
+  overflow-wrap: anywhere;
 }
 
 .newsletter-eyebrow {
@@ -37,6 +39,7 @@
 
 .newsletter-field {
   flex: 1 1 260px;
+  min-width: 0;
 }
 
 .newsletter-form .newsletter-input {
