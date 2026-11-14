@@ -13,12 +13,14 @@ export function NewsletterSection() {
           applications for Takeoff Tokyo 2027.
         </p>
 
-        <a
-          className="takeoff-button takeoff-button--cyan takeoff-button--size-md newsletter-subscribe"
-          href="https://takeofftokyo.substack.com/subscribe"
-        >
-          Subscribe on Substack
-        </a>
+        <iframe
+          className="newsletter-embed"
+          src="https://takeofftokyo.substack.com/embed"
+          title="Subscribe to Takeoff Tokyo on Substack"
+          width="480"
+          height="320"
+          loading="lazy"
+        />
 
         <p className="newsletter-note">
           Subscriptions are managed on Substack. Unsubscribe at any time.

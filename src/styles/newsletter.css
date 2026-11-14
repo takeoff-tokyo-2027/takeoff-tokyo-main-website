@@ -18,10 +18,11 @@
   font-weight: var(--takeoff-font-weight-light);
 }
 
-.newsletter-subscribe {
-  max-width: 100%;
-  min-height: var(--site-control-height);
-  white-space: normal;
+.newsletter-embed {
+  display: block;
+  width: 100%;
+  margin-inline: auto;
+  border: 0;
 }
 
 .newsletter-note {
