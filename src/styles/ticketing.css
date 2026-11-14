@@ -27,6 +27,7 @@
 }
 .ticket-form {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--site-space-6);
   min-width: 0;
 }
@@ -76,6 +77,7 @@
 }
 .ticket-form .ticket-quantity {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   gap: var(--site-space-3);
@@ -88,6 +90,7 @@
   border-color: var(--takeoff-accent-cyan-base);
 }
 .ticket-quantity > span {
+  flex: 1 1 8rem;
   min-width: 0;
   overflow-wrap: anywhere;
   font-size: var(--site-font-size-body);
@@ -123,8 +126,8 @@
   align-items: center;
   justify-content: center;
   flex: none;
-  width: 28px;
-  height: 28px;
+  width: max(28px, 1em);
+  height: max(28px, var(--site-space-7));
   padding: 0;
   border: 0;
   border-radius: var(--takeoff-radius-small);
@@ -149,8 +152,8 @@
 .ticket-form input.number-input__value {
   flex: 1;
   width: 0;
-  min-width: 24px;
-  min-height: 32px;
+  min-width: 3.25ch;
+  min-height: max(32px, var(--site-space-8));
   padding: 0;
   border: 0;
   border-radius: 0;
@@ -171,9 +174,10 @@
 }
 .number-field--compact {
   flex: none;
-  width: 104px;
+  width: calc(3.25ch + 2 * max(28px, 1em) + 2 * var(--site-space-1));
 }
 .number-field--compact .number-input {
+  gap: var(--site-space-1);
   padding: 0;
   background: transparent;
   border: 0;
@@ -350,6 +354,15 @@ summary::marker {
   flex: none;
   gap: var(--site-space-4);
 }
+.ticket-modal .takeoff-modal-dialog__title {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.ticket-modal .takeoff-button {
+  min-width: 0;
+  padding-inline: var(--site-space-4);
+  overflow-wrap: anywhere;
+}
 .ticket-modal .takeoff-modal-dialog__close-button {
   width: var(--site-control-height);
   height: var(--site-control-height);
@@ -388,10 +401,11 @@ summary::marker {
 }
 .checkout-navigation {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--site-space-3);
 }
 .checkout-navigation > button {
-  flex: 1;
+  flex: 1 1 7rem;
 }
 .checkout-discount {
   border-top: 1px solid var(--takeoff-border-default);
@@ -413,11 +427,13 @@ summary::marker {
   background: var(--takeoff-color-bg-surface-card);
   border-top: 1px solid var(--takeoff-border-default);
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--site-space-4);
   z-index: var(--site-layer-sticky);
 }
 .checkout-footer p {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: baseline;
   gap: var(--site-space-4);
@@ -461,11 +477,14 @@ summary::marker {
     grid-template-columns: 1fr;
   }
   .ticket-modal {
-    --dialog-pad: var(--site-space-5);
+    --dialog-pad: clamp(var(--site-space-2), 3vw, var(--site-space-5));
     max-height: min(94svh, calc(100svh - var(--environment-banner-height) - var(--site-space-8)));
   }
   .ticket-modal .takeoff-modal-dialog__header {
     padding-block: var(--site-space-2-5);
+  }
+  .ticket-form .ticket-quantity {
+    padding-inline: var(--site-space-2);
   }
   .ticket-form fieldset {
     padding: var(--site-space-4);
@@ -478,14 +497,6 @@ summary::marker {
   }
   .ticket-order {
     gap: var(--site-space-2) var(--site-space-4);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .panel-shell *,
-  .ticket-modal,
-  .ticket-modal * {
-    transition: none !important;
-    scroll-behavior: auto !important;
   }
 }
 .sign-in-options {

@@ -22,6 +22,11 @@
   align-items: center;
   min-height: var(--site-control-height);
 }
+.panel-logo {
+  display: block;
+  width: auto;
+  height: 30px;
+}
 .panel-switch {
   display: inline-flex;
   align-items: center;

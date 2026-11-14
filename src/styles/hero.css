@@ -48,7 +48,3 @@
   font-weight: var(--takeoff-font-weight-regular);
   line-height: var(--site-line-height-title);
 }
-
-.register-button {
-  gap: var(--site-space-3);
-}

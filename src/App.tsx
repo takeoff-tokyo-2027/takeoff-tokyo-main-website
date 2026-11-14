@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import backgroundVideo from '../assets/videos/takeoff-tokyo-background-video.mp4';
+import { HeroVideo } from './components/HeroVideo';
 import { Footer } from './components/Footer';
 import { LegalPage, legalRoutes } from './pages/LegalPage';
 import { Ticketing } from './ticketing/Ticketing';
@@ -22,9 +22,7 @@ export const App: React.FC = () => {
         <main className="hero-page">
           <section className="hero-content" aria-labelledby="hero-title">
             <div className="hero-media">
-              <video className="hero-video" autoPlay muted loop playsInline aria-hidden="true">
-                <source src={backgroundVideo} type="video/mp4" />
-              </video>
+              <HeroVideo />
             </div>
             <h1 id="hero-title" className="visually-hidden">
               Takeoff Tokyo

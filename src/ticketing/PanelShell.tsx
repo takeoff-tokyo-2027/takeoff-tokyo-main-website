@@ -1,6 +1,7 @@
 import { type ReactNode } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { TakeoffButton, TakeoffTokyoLogo } from '@takeoff-tokyo/ui';
+import { TakeoffButton } from '@takeoff-tokyo/ui';
+import logo from '@takeoff-tokyo/ui/assets/takeoff_tokyo.svg';
 import type { Me } from './client';
 interface PanelShellProps {
   children: ReactNode;
@@ -37,7 +38,7 @@ export function PanelShell({ children, me, email, signOut }: PanelShellProps) {
       <header className={`panel-header${isAdmin ? ' panel-header--admin' : ''}`}>
         <div className="site-container panel-header-inner">
           <Link to="/" aria-label="Home">
-            <TakeoffTokyoLogo height={30} />
+            <img className="panel-logo" src={logo} height={30} alt="Takeoff Tokyo" />
           </Link>
           <div className="ticket-actions">
             {(isAdmin || me?.staffRole) && (

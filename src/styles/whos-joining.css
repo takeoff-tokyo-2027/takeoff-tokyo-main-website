@@ -55,10 +55,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .who-tile {
-    transition: none;
-  }
-
   .who-tile:hover,
   .who-tile:focus-visible {
     transform: none;

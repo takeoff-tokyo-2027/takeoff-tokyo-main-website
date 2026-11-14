@@ -146,6 +146,18 @@ for (const fontPercent of [100, 200]) {
       'font-size',
       `${(16 * fontPercent) / 100}px`,
     );
+    await page.evaluate(() => document.fonts.ready);
+    const body = modal.locator('.takeoff-modal-dialog__body');
+    const fitsBody = () => body.evaluate((el) => el.scrollWidth <= el.clientWidth + 1);
+    expect(await fitsBody()).toBe(true);
+    const quantity = modal.getByRole('spinbutton', { name: 'Startup quantity' });
+    await quantity.fill('100');
+    expect(await quantity.evaluate((el) => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
+    expect(await fitsBody()).toBe(true);
+    await modal.getByRole('button', { name: 'Continue', exact: true }).click();
+    await expect(modal.getByLabel('Buyer’s email')).toBeVisible();
+    await modal.locator('.checkout-discount > summary').click();
+    expect(await fitsBody()).toBe(true);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,
     );
@@ -153,3 +165,68 @@ for (const fontPercent of [100, 200]) {
     expect(fitsDialog).toBe(true);
   });
 }
+
+for (const width of [280, 320, 640]) {
+  test(`long ticket names stay inside their cards at ${width}px`, async ({ page }) => {
+    const label = 'W'.repeat(120);
+    await page.route('**/api/ticket-types', (route) =>
+      route.fulfill({
+        json: {
+          salesEnabled: true,
+          types: [{ code: 'general_admission', label, amount: 4200, currency: 'JPY' }],
+          currencies: [{ code: 'JPY', decimals: 0 }],
+          sectors: [],
+        },
+      }),
+    );
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/');
+    const card = page.getByRole('article', { name: label, exact: true });
+    await expect(card).toBeVisible();
+    await page.evaluate(() => document.fonts.ready);
+    expect(await card.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+    await card.getByRole('button').click();
+    await expect(page.getByRole('dialog', { name: 'Buy tickets' })).toBeVisible();
+  });
+}
+
+test('reduced motion stops hero playback and dialog transitions, including live changes', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  const video = page.locator('.hero-video');
+  await expect(video).not.toHaveAttribute('autoplay');
+  await expect(video).toHaveAttribute('poster', /hero-poster.*\.webp/);
+  expect(await video.evaluate((el: HTMLVideoElement) => el.paused)).toBe(true);
+
+  await page.getByRole('button', { name: 'Get startup ticket', exact: true }).click();
+  const modal = page.getByRole('dialog', { name: 'Buy tickets' });
+  await expect(modal).toHaveCSS('transition-duration', '0s');
+  await expect(modal.locator('.ticket-modal')).toHaveCSS('transition-duration', '0s');
+  await page.keyboard.press('Escape');
+
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await expect(video).toHaveAttribute('autoplay', '');
+  await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.paused)).toBe(false);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.paused)).toBe(true);
+});
+
+test('shared fonts load as external WOFF2 assets', async ({ page }) => {
+  const fonts: string[] = [];
+  page.on('request', (request) => {
+    if (request.resourceType() === 'font') fonts.push(request.url());
+  });
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'About', exact: true })).toBeVisible();
+  await page.evaluate(() => document.fonts.ready);
+  expect(fonts.length).toBeGreaterThan(0);
+  expect(fonts.every((url) => url.endsWith('.woff2'))).toBe(true);
+  expect(
+    await page.evaluate(() => [...document.fonts].every((font) => font.status === 'loaded')),
+  ).toBe(true);
+});

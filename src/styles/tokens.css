@@ -14,7 +14,6 @@
   --site-space-7: 1.75rem;
   --site-space-8: 2rem;
   --site-space-10: 2.5rem;
-  --site-space-11: 2.75rem;
   --site-space-12: 3rem;
   --site-space-16: 4rem;
   --site-checkout-footer-clearance: 11.25rem;
@@ -24,36 +23,24 @@
      The root stays at 100% to respect the browser's text-size preference. */
   --site-font-size-body: 1rem;
   --site-font-size-section-title: 2rem;
-  --site-line-height-solid: 1;
-  --site-line-height-display: 1.15;
   --site-line-height-title: 1.2;
   --site-line-height-compact: 1.25;
   --site-line-height-body: 1.5;
   --site-line-height-copy: 1.65;
   --site-font-weight-semibold: 600;
-  --site-tracking-tight: -0.02em;
-  --site-tracking-label: 0.04em;
   --site-tracking-eyebrow: 0.08em;
   --site-tracking-code: 0.25em;
 
   /* Alpha variants derive from the shared theme colors. */
   --site-border-soft: color-mix(in srgb, var(--takeoff-text) 8%, transparent);
   --site-border-strong: color-mix(in srgb, var(--takeoff-text) 12%, transparent);
-  --site-surface-subtle: color-mix(in srgb, var(--takeoff-text) 3%, transparent);
   --site-surface-control: var(--site-border-soft);
   --site-surface-control-hover: color-mix(in srgb, var(--takeoff-text) 15%, transparent);
-  --site-surface-input-overlay: color-mix(in srgb, var(--takeoff-surface) 80%, transparent);
-  --site-text-badge: color-mix(in srgb, var(--takeoff-text) 75%, transparent);
   --site-text-copy: color-mix(in srgb, var(--takeoff-text) 65%, transparent);
-  --site-text-edition: color-mix(in srgb, var(--takeoff-text) 60%, transparent);
-  --site-text-drawer: color-mix(in srgb, var(--takeoff-text) 80%, transparent);
-  --site-text-eyebrow: color-mix(in srgb, var(--takeoff-text) 50%, transparent);
-  --site-text-note: color-mix(in srgb, var(--takeoff-text) 40%, transparent);
   --site-shadow-logo-hover: 0 4px 14px
     color-mix(in srgb, var(--takeoff-accent-cyan-base) 25%, transparent);
 
   /* Shared controls, containers, focus treatment, and layers. */
-  --site-radius-xs: 4px;
   --site-radius-control: 8px;
   --site-radius-quantity: 10px;
   --site-control-height: 44px;
@@ -74,9 +61,6 @@
   --site-qr-size: 320px;
   --site-focus-width: 2px;
   --site-layer-sticky: 1;
-  --site-layer-nav: 100;
   --site-layer-banner: 1200;
   --site-layer-skip-link: 2000;
-  --site-transition-color: color 0.2s ease;
-  --site-navbar-blur: 16px;
 }

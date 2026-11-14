@@ -18,6 +18,8 @@ The Code quality GitHub Actions workflow runs lint, formatting, and the CSS poli
 
 The app loads `@takeoff-tokyo/ui/css`, then `src/styles/tokens.css`, global typography/layout rules, and component styles. Reuse the library's `--takeoff-*` colors, fonts, borders, and radii. Site typography and layout conventions live in `tokens.css` as `--site-*` variables. Spacing uses a 4px scale in rem (for example, `--site-space-4` is 1rem).
 
+The Vite `uiFonts` plugin replaces the library's embedded TTF URLs with compressed WOFF2 files in `assets/fonts`. Its manifest verifies the original font hashes; the library's families, weights, and theme rules stay intact. After a UI package update that changes fonts, run `python3 scripts/prepare-ui-fonts.py` with `fonttools[woff]` available and commit the regenerated fonts and manifest. Python is not required for normal builds. The panel logo imports the same library SVG as a separate image asset rather than including its data URL in the application JavaScript.
+
 Body and UI text use `--site-font-size-body: 1rem` (16px at the default root). Public section headings use `--site-font-size-section-title: 2rem` (32px). Keep these shared sizes in `tokens.css`; use weight, font family, spacing, and color for other distinctions. The root remains `100%` so user font preferences and browser text resizing still apply.
 
 `typography.css` applies the shared size to native headings and the UI library's components. Standard text uses a 1.5 line height; long-form copy uses 1.65. Keep TT Lakes Neue for display headings and Lato for body/UI text.
@@ -167,7 +169,7 @@ Before deploying these pages, apply **`20261112062547_admin_read_views.sql` from
 
 Read API additions: `GET /api/admin/tickets/:id`, `GET /api/admin/ticket-types`, and registration list filters `q`, `type`, `status`, `payment`, `day`, `checkin=yes|no`, and `offset`. The list retains `tickets` and adds `hasMore`; pages contain up to 100 records. All queries require event admin authorization.
 
-Browser verification: install Chromium with `bunx playwright install chromium`. In one terminal start `VITE_SUPABASE_URL=https://example.supabase.co VITE_SUPABASE_ANON_KEY=example npm run dev:frontend -- --host 127.0.0.1 --port 4173`, then run `npm run test:browser`. Tests use mocked APIs and a synthetic local session, never live Supabase/Stripe credentials. They cover direct page refreshes, second-day QR access, admin search/detail navigation, ordinary-user denial, and the 320px layout/purchase modal. Database authorization and cross-page search are tested separately in the schema repository.
+Browser verification: install Chromium with `bunx playwright install chromium`, then run `npm run test:browser`. Playwright starts and stops its own Vite server on port 4173 with public test settings; keep that port available. Tests use mocked APIs and a synthetic local session, never live Supabase/Stripe credentials. They cover direct page refreshes, second-day QR access, admin search/detail navigation, ordinary-user denial, mobile layouts, enlarged text, and motion preferences. CI runs the build and full browser suite alongside lint, formatting, and the CSS policy check. Database authorization and cross-page search are tested separately in the schema repository.
 
 ## Three environments: local, dev Preview, main Production
 

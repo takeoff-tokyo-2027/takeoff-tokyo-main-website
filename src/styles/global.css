@@ -64,7 +64,13 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+    /* Finish animations immediately while preserving their completion events. */
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }

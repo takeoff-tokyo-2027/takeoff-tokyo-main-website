@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   check:
-    name: Lint and formatting
+    name: Build, styles, and browser checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -22,4 +22,6 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun run lint
       - run: bun run format:check
-      - run: bun run check:styles
+      - run: bun run build
+      - run: bunx playwright install --with-deps chromium
+      - run: bun run test:browser
